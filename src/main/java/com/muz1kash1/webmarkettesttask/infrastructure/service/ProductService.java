@@ -1,0 +1,168 @@
+package com.muz1kash1.webmarkettesttask.infrastructure.service;
+
+import com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository.IStoreRepo;
+import com.muz1kash1.webmarkettesttask.model.domain.Discount;
+import com.muz1kash1.webmarkettesttask.model.domain.Product;
+import com.muz1kash1.webmarkettesttask.model.domain.Review;
+import com.muz1kash1.webmarkettesttask.model.dto.AddProductDto;
+import com.muz1kash1.webmarkettesttask.model.dto.AddReviewDto;
+import com.muz1kash1.webmarkettesttask.model.dto.DiscountChangeDto;
+import com.muz1kash1.webmarkettesttask.model.dto.DiscountDto;
+import com.muz1kash1.webmarkettesttask.model.dto.ProductDto;
+import com.muz1kash1.webmarkettesttask.model.dto.ReviewDto;
+import com.muz1kash1.webmarkettesttask.model.dto.UpdateProductDto;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import java.util.ArrayList;
+import java.util.List;
+
+@AllArgsConstructor
+@Service
+public class ProductService {
+  private final IStoreRepo marketRepository;
+
+  public List<ProductDto> getAllProducts() {
+    List<Product> products = marketRepository.getAllProducts();
+    List<ProductDto> productDtos = new ArrayList<>();
+    for (
+      Product product : products
+    ) {
+      productDtos.add(
+        new ProductDto(
+          product.getId(),
+          product.getName(),
+          product.getDescription(),
+          product.getOrganisationName(),
+          product.getPrice(),
+          product.getQuantity(),
+          product.getKeywords(),
+          product.getChars()
+        )
+      );
+    }
+    return productDtos;
+  }
+
+  public ProductDto getProductById(final long id) {
+    Product product = marketRepository.getProductById(id);
+    ProductDto productDto = new ProductDto(
+      product.getId(),
+      product.getName(),
+      product.getDescription(),
+      product.getOrganisationName(),
+      product.getPrice(),
+      product.getQuantity(),
+      product.getKeywords(),
+      product.getChars()
+    );
+    return productDto;
+  }
+
+  public ProductDto addNewProduct(final AddProductDto addProductDto) {
+    Product product = marketRepository.addProduct(
+      new Product(
+        1,
+        addProductDto.getName(),
+        addProductDto.getDescription(),
+        addProductDto.getOrganisationName(),
+        addProductDto.getPrice(),
+        addProductDto.getQuantity(),
+        addProductDto.getKeywords(),
+        addProductDto.getChars()
+      ),
+      addProductDto.getOrganisationId()
+    );
+    return new ProductDto(
+      product.getId(),
+      product.getName(),
+      product.getDescription(),
+      product.getOrganisationName(),
+      product.getPrice(),
+      product.getQuantity(),
+      product.getKeywords(),
+      product.getChars()
+    );
+  }
+
+  public ProductDto updateProduct(final long id, final UpdateProductDto updateProductDto) {
+    Product product = marketRepository.getProductById(id);
+    product.setName(updateProductDto.getName());
+    product.setDescription(updateProductDto.getDescription());
+    product.setOrganisationName(updateProductDto.getOrganisationName());
+    product.setQuantity(updateProductDto.getQuantity());
+    product.setChars(updateProductDto.getChars());
+    product.setPrice(updateProductDto.getPrice());
+    product.setKeywords(updateProductDto.getKeywords());
+
+    Product updatedProduct = marketRepository.updateProductById(id, product);
+    return new ProductDto(
+      updatedProduct.getId(),
+      updateProductDto.getName(),
+      updatedProduct.getDescription(),
+      updatedProduct.getOrganisationName(),
+      updatedProduct.getPrice(),
+      updatedProduct.getQuantity(),
+      updatedProduct.getKeywords(),
+      updatedProduct.getChars()
+    );
+  }
+
+  public void deleteProduct(final long id) {
+    marketRepository.deleteProductById(id);
+  }
+
+  public DiscountDto changeDiscountToProduct(final long productId, final DiscountChangeDto discountChangeDto) {
+    Discount discount = new Discount(
+      1,
+      discountChangeDto.getDiscountSize(),
+      discountChangeDto.getDuration()
+    );
+    Discount discountToReturn = marketRepository.changeDiscountToProduct(productId, discount);
+    return new DiscountDto(
+      discountToReturn.getId(),
+      discountToReturn.getDiscountSize(),
+      discountToReturn.getDurationOfDiscount()
+    );
+  }
+
+  public ReviewDto addNewReviewForPurchasedProduct(final long id,
+                                                   final AddReviewDto addReviewDto) {
+    com.muz1kash1.webmarkettesttask.model.domain.Review review;
+    List<Product> products = marketRepository.getPurchasedProducts(addReviewDto.getUserId());
+    if (products.stream().anyMatch(o -> o.getId() == id)) {
+      review = marketRepository.addReview(
+        new Review(1, addReviewDto.getUserId(), id, addReviewDto.getReviewText(), addReviewDto.getRating()));
+    } else {
+      throw new RuntimeException("Нельзя оставлять отзыв не купив товар");
+    }
+    return new ReviewDto(
+      review.getId(),
+      review.getUserId(),
+      review.getProductId(),
+      review.getReviewText(),
+      review.getRating()
+    );
+  }
+
+  public ReviewDto udateExistingReview(final long id, final long reviewId, final AddReviewDto addReviewDto) {
+    Review review
+      = new Review(
+      reviewId, addReviewDto.getUserId(), id, addReviewDto.getReviewText(), addReviewDto.getRating()
+    );
+    Review reviewForCheck = marketRepository.getReviewById(reviewId);
+    if (reviewForCheck.getUserId() == addReviewDto.getUserId()) {
+      Review reviewToUpdate = marketRepository.updateProductAndReviewById(review);
+      return new ReviewDto(
+        reviewToUpdate.getId(),
+        reviewToUpdate.getUserId(),
+        reviewToUpdate.getProductId(),
+        reviewToUpdate.getReviewText(),
+        reviewToUpdate.getRating()
+      );
+    } else throw new RuntimeException("Только тот кто оставил ревью может его менять");
+  }
+
+  public void deleteReviewById(final long id, final long reviewId) {
+    marketRepository.deleteReviewById(id, reviewId);
+  }
+}

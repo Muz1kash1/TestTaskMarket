@@ -1,0 +1,26 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  jpa:
+    database: postgresql
+    show-sql: true
+  datasource:
+    username: ShevchenkoDN
+    url: jdbc:postgresql://localhost:5433/storeDb
+    driver-class-name: org.postgresql.Driver
+    password: She031fit
+  sql:
+    init:
+      platform: postgres
+  flyway:
+    user: ShevchenkoDN
+    password: She031fit
+    schemas: public
+    url: jdbc:postgresql://localhost:5433/storeDb
+rsa:
+  private-key: classpath:certs/private.pem
+  public-key: classpath:certs/public.pem
+security:
+  jwt:
+    token:
+      secret-key: my-secret

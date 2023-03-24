@@ -1,0 +1,63 @@
+package com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository.postgres;
+
+import com.muz1kash1.webmarkettesttask.infrastructure.persistent.postgres.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface ProductRepository extends JpaRepository<Product, Long> {
+  @Query(value =
+    """
+     SELECT p.*
+     FROM products p
+              JOIN organisation_products op ON p.id = op.product_id
+              JOIN organisations o ON op.organisation_id = o.id
+     WHERE o.enabled != false;
+     """
+    , nativeQuery = true)
+  List<Product> findAll();
+
+//  @Query(value = "INSERT INTO organisation_products(organisation_id,product_id) values (:organisationId,:productId);"
+//    + "           SELECT o.* FROM organisation_products o where o.organisation_id == :organisationId and o.product_id == :productId",
+//    nativeQuery = true)
+//  OrganisationProduct addOrganisationProduct(
+//    @Param("organisationId")
+//    long organisationId,
+//    @Param("productId")
+//    long productId);
+
+  Optional<Product> findProductById(long id);
+
+  Optional<Void> deleteById(long id);
+
+  Optional<Product> findTopByOrderByIdDesc();
+
+  @Query(value =
+    """
+          SELECT p.*
+          + FROM products p
+          +          JOIN purchases pu ON p.id = pu.product_id
+          + WHERE pu.user_id = :userId
+          + GROUP BY p.id;
+      """
+    ,
+    nativeQuery = true)
+  List<Product> findAllPurchasedProducts(@Param(value = "userId") long userId);
+
+
+  @Modifying
+  @Query(value = """
+    update Product p set p.quantity  = p.quantity - 1 where p.id = :productId
+    """
+  )
+  void updateProductQuantityByOne(
+    @Param("productId")
+    long productId);
+
+
+}

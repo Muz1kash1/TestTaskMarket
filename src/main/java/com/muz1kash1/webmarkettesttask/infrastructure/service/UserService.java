@@ -1,0 +1,94 @@
+package com.muz1kash1.webmarkettesttask.infrastructure.service;
+
+import com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository.IStoreRepo;
+import com.muz1kash1.webmarkettesttask.model.domain.Notion;
+import com.muz1kash1.webmarkettesttask.model.domain.User;
+import com.muz1kash1.webmarkettesttask.model.dto.NotionDto;
+import com.muz1kash1.webmarkettesttask.model.dto.SignUpDto;
+import com.muz1kash1.webmarkettesttask.model.dto.UserDto;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@AllArgsConstructor
+public class UserService {
+  private final IStoreRepo marketRepository;
+
+  private static UserDto getUserDtoFromDomain(final User user) {
+    return new UserDto(
+      user.getId(),
+      user.getUsername(),
+      user.getMailAddress(),
+      user.getBalance(),
+      user.getPassword(),
+      user.isEnabled()
+    );
+  }
+
+  public UserDto signUp(SignUpDto signUpDto) {
+    User user = marketRepository.addUser(signUpDto);
+    return getUserDtoFromDomain(user);
+  }
+
+  public UserDto findByUsername(String username) {
+    User user = marketRepository.getUserByUsername(username);
+    if (username.equals(user.getUsername())) {
+      return getUserDtoFromDomain(user);
+    }
+    throw new RuntimeException("Invalid username");
+  }
+
+  public UserDto changeUserBalance(final long userid, final BigDecimal valueOf) {
+    User user = marketRepository.changeUserBalance(userid, valueOf);
+    return getUserDtoFromDomain(user);
+  }
+
+  public UserDto getUserById(final long userid) {
+    User user = marketRepository.getUserById(userid);
+    return getUserDtoFromDomain(user);
+  }
+
+  public void deleteUserById(final long userService) {
+    marketRepository.deleteUserById(userService);
+  }
+
+  public UserDto freezeUserById(final long userid) {
+    User user = marketRepository.getUserById(userid);
+    user.setEnabled(false);
+    return getUserDtoFromDomain(user);
+  }
+
+  public NotionDto sendNotionToUser(final long userid, final NotionDto notionDto) {
+    Notion notion = marketRepository.sendNotionToUser(userid, notionDto);
+    return new NotionDto(
+      notion.getId(),
+      notion.getHeader(),
+      notion.getNotionDate(),
+      notion.getNotionText()
+    );
+  }
+
+  // TODO доделать все сервисы которые делают работу за одно действие в репозитории и разобраться с остальными 5 сложными
+  // TODO другой для всех покупок юзера, третий для покупки товара с зачислением денег на баланс органиации минус 5%
+  // TODO четвертый на оставку отзыва только в том случае если юзер купил товар, пятый на возврат денег в течение суток
+  // TODO прием заявки админа сделать как то что по дефолту организация не активна, а после принятия активна
+  // TODO возвращать продукты пользователям только те у которых не заморожена выставившая организация
+  public List<NotionDto> getUserNotions(final long userid) {
+    List<Notion> userNotions = marketRepository.getNotionsOfUser(userid);
+    List<NotionDto> notionDtos = new ArrayList<>();
+    for (Notion userNotion : userNotions) {
+      notionDtos.add(
+        new NotionDto(
+          userNotion.getId(),
+          userNotion.getHeader(),
+          userNotion.getNotionDate(),
+          userNotion.getNotionText()
+        )
+      );
+    }
+    return notionDtos;
+  }
+}
