@@ -7,3 +7,5 @@
 ***************************************************************************************
 ссылка на коллецию для тестирования api : 
 https://api.postman.com/collections/22619244-123a11f8-c2a0-4421-a401-b17cd84eef8d?access_key=PMAT-01GWB39S6D2FFZK4EWBQJ0Y114
+*********
+Документация для удобного просмотра : https://documenter.getpostman.com/view/22619244/2s93RNyEpk
