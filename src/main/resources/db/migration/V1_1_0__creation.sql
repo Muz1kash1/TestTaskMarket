@@ -5,7 +5,7 @@ create table products
     description       text,
     organisation_name text,
     price             numeric   not null check (price > 0),
-    quantity          int       not null check (quantity > 0),
+    quantity          int       not null check (quantity >= 0),
     keywords          text[],
     chars             text[],
     primary key (id)
@@ -13,7 +13,7 @@ create table products
 create table users
 (
     id       bigserial not null unique,
-    username text      not null,
+    username text      not null unique,
     mail     text      not null unique,
     password text      not null,
     balance  numeric   not null check (balance >= 0) default (0),
