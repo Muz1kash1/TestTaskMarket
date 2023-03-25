@@ -11,6 +11,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      image: postgres
+      env:
+        - POSTGRES_USER: ShevchenkoDN
+        - POSTGRES_PASSWORD: She031fit
+        - POSTGRES_BD: storeDb
+      ports:
+        - 5433:5432
+      options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: set up JDK 17
