@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -23,13 +24,16 @@ public class Purchase {
   private long productId;
   @Column(name = "refunded")
   private boolean refunded;
+  @Column(name = "price")
+  private BigDecimal price;
   @Column(name = "purchase_date")
   private LocalDate purchaseDate;
 
-  public Purchase(long userId, long productId, boolean refunded, LocalDate purchaseDate) {
+  public Purchase(long userId, long productId, boolean refunded, BigDecimal price, LocalDate purchaseDate) {
     this.userId = userId;
     this.productId = productId;
     this.refunded = refunded;
+    this.price = price;
     this.purchaseDate = purchaseDate;
   }
 

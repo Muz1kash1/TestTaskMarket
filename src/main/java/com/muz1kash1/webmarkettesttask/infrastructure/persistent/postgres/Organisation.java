@@ -23,7 +23,7 @@ public class Organisation {
   private String organisationDescription;
 
   @Column(name = "logotype_id")
-  private Integer logotypeId;
+  private long logotypeId;
 
   @Column(name = "enabled")
   private boolean enabled;
@@ -31,11 +31,11 @@ public class Organisation {
   @Column(name = "organisation_owner_id")
   private long organisationOwnerId;
 
-  public Organisation(String organisationName, String organisationDescription, Integer logotypeId, boolean frozen,long organisationOwnerId) {
+  public Organisation(String organisationName, String organisationDescription, long logotypeId, boolean enabled,long organisationOwnerId) {
     this.organisationName = organisationName;
     this.organisationDescription = organisationDescription;
     this.logotypeId = logotypeId;
-    this.enabled = frozen;
+    this.enabled = enabled;
     this.organisationOwnerId = organisationOwnerId;
   }
 

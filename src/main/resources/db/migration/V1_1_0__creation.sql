@@ -4,8 +4,8 @@ create table products
     product_name      text      not null,
     description       text,
     organisation_name text,
-    price             numeric   not null check ( price > 0 ),
-    quantity          int       not null,
+    price             numeric   not null check (price > 0),
+    quantity          int       not null check (quantity > 0),
     keywords          text[],
     chars             text[],
     primary key (id)
@@ -50,7 +50,7 @@ create table organisations
     organisation_name        text,
     organisation_description text,
     logotype_id              bigserial,
-    enabled                  bool      not null default (true),
+    enabled                  bool      not null default (false),
     organisation_owner_id    bigserial not null,
     foreign key (organisation_owner_id) references users (id),
     primary key (id)

@@ -75,6 +75,12 @@ public class SecurityConfig {
       .hasRole("ADMIN")
       .requestMatchers(HttpMethod.POST, "/users/{userid}/notifications")
       .hasRole("ADMIN")
+      .requestMatchers(HttpMethod.GET, "/users/{userid}/purchases")
+      .hasRole("ADMIN")
+      .requestMatchers(HttpMethod.PUT, "/organisations/{id}/freeze")
+      .hasRole("ADMIN")
+      .requestMatchers(HttpMethod.PUT, "/organisations/{id}/unfreeze")
+      .hasRole("ADMIN")
       .anyRequest().authenticated()
       .and()
       .httpBasic();

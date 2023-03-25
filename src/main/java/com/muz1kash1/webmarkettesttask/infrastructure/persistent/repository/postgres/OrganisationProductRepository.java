@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OrganisationProductRepository extends JpaRepository<OrganisationProduct, Long> {
-  public void deleteByProductId(long id);
+  void deleteByProductId(long id);
+
+  OrganisationProduct findByProductId(long productId);
 
 }

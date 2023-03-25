@@ -2,6 +2,7 @@ package com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository;
 
 import com.muz1kash1.webmarkettesttask.model.domain.Discount;
 import com.muz1kash1.webmarkettesttask.model.domain.Notion;
+import com.muz1kash1.webmarkettesttask.model.domain.Organisation;
 import com.muz1kash1.webmarkettesttask.model.domain.Product;
 import com.muz1kash1.webmarkettesttask.model.domain.Purchase;
 import com.muz1kash1.webmarkettesttask.model.domain.Review;
@@ -9,6 +10,7 @@ import com.muz1kash1.webmarkettesttask.model.domain.User;
 import com.muz1kash1.webmarkettesttask.model.dto.MakePurchaseDto;
 import com.muz1kash1.webmarkettesttask.model.dto.NotionDto;
 import com.muz1kash1.webmarkettesttask.model.dto.SignUpDto;
+import com.muz1kash1.webmarkettesttask.model.dto.SignupOrganisationDto;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -51,4 +53,16 @@ public interface IStoreRepo {
   void deleteReviewById(long id, long reviewId);
 
   Purchase addPurchase(MakePurchaseDto makePurchaseDto);
+
+  Purchase getPurchaseById(long id);
+
+  List<Purchase> getPurchasesOfUser(long id);
+
+  Purchase refundPurchase(long id);
+
+  Organisation freezeOrganisationById(long id);
+
+  Organisation addOrganisationApplication(SignupOrganisationDto signOrganisationDto);
+
+  Organisation unfreezeOrganisationById(long id);
 }

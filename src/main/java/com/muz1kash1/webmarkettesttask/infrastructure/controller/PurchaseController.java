@@ -12,24 +12,30 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
 public class PurchaseController {
   private final PurchaseService purchaseService;
   @PostMapping("/purchases")
-  public void purchaseProduct(@RequestBody @Valid MakePurchaseDto makePurchaseDto) {
-      purchaseService.makePurchase(makePurchaseDto);
+  public ResponseEntity<PurchaseDto> purchaseProduct(@RequestBody @Valid MakePurchaseDto makePurchaseDto) {
+      PurchaseDto purchaseDto = purchaseService.makePurchase(makePurchaseDto);
+      return ResponseEntity.ok().body(purchaseDto);
+  }
+  @GetMapping("/users/{id}/purchaseshistory")
+  public ResponseEntity<List<PurchaseDto>> getPurchasesOfUser(@PathVariable long id){
+    return ResponseEntity.ok().body(purchaseService.getPurchasesOfUser(id));
   }
 
   @GetMapping("/purchases/{id}")
   public ResponseEntity<PurchaseDto> getPurchase(@PathVariable long id) {
-    return null;
+    return ResponseEntity.ok().body(purchaseService.getPurchase(id));
   }
 
   @PutMapping("/purchases/{id}/refund")
   public ResponseEntity<PurchaseDto> requestRefund(@PathVariable long id) {
-    return null;
-  }
+    return ResponseEntity.ok().body(purchaseService.refundPurchase(id));
 
+  }
 }
