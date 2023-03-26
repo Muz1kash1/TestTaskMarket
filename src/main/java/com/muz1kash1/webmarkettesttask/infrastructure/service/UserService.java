@@ -1,6 +1,6 @@
 package com.muz1kash1.webmarkettesttask.infrastructure.service;
 
-import com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository.IStoreRepo;
+import com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository.IUserRepo;
 import com.muz1kash1.webmarkettesttask.model.domain.Notion;
 import com.muz1kash1.webmarkettesttask.model.domain.User;
 import com.muz1kash1.webmarkettesttask.model.dto.NotionDto;
@@ -8,14 +8,16 @@ import com.muz1kash1.webmarkettesttask.model.dto.SignUpDto;
 import com.muz1kash1.webmarkettesttask.model.dto.UserDto;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class UserService {
-  private final IStoreRepo marketRepository;
+  private final IUserRepo userRepository;
 
   private static UserDto getUserDtoFromDomain(final User user) {
     return new UserDto(
@@ -29,12 +31,12 @@ public class UserService {
   }
 
   public UserDto signUp(SignUpDto signUpDto) {
-    User user = marketRepository.addUser(signUpDto);
+    User user = userRepository.addUser(signUpDto);
     return getUserDtoFromDomain(user);
   }
 
   public UserDto findByUsername(String username) {
-    User user = marketRepository.getUserByUsername(username);
+    User user = userRepository.getUserByUsername(username);
     if (username.equals(user.getUsername())) {
       return getUserDtoFromDomain(user);
     }
@@ -42,27 +44,27 @@ public class UserService {
   }
 
   public UserDto changeUserBalance(final long userid, final BigDecimal valueOf) {
-    User user = marketRepository.changeUserBalance(userid, valueOf);
+    User user = userRepository.changeUserBalance(userid, valueOf);
     return getUserDtoFromDomain(user);
   }
 
   public UserDto getUserById(final long userid) {
-    User user = marketRepository.getUserById(userid);
+    User user = userRepository.getUserById(userid);
     return getUserDtoFromDomain(user);
   }
 
   public void deleteUserById(final long userService) {
-    marketRepository.deleteUserById(userService);
+    userRepository.deleteUserById(userService);
   }
 
   public UserDto freezeUserById(final long userid) {
-    User user = marketRepository.getUserById(userid);
+    User user = userRepository.getUserById(userid);
     user.setEnabled(false);
     return getUserDtoFromDomain(user);
   }
 
   public NotionDto sendNotionToUser(final long userid, final NotionDto notionDto) {
-    Notion notion = marketRepository.sendNotionToUser(userid, notionDto);
+    Notion notion = userRepository.sendNotionToUser(userid, notionDto);
     return new NotionDto(
       notion.getId(),
       notion.getHeader(),
@@ -70,8 +72,9 @@ public class UserService {
       notion.getNotionText()
     );
   }
+
   public List<NotionDto> getUserNotions(final long userid) {
-    List<Notion> userNotions = marketRepository.getNotionsOfUser(userid);
+    List<Notion> userNotions = userRepository.getNotionsOfUser(userid);
     List<NotionDto> notionDtos = new ArrayList<>();
     for (Notion userNotion : userNotions) {
       notionDtos.add(

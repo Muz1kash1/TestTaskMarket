@@ -1,19 +1,21 @@
 package com.muz1kash1.webmarkettesttask.infrastructure.service;
 
-import com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository.IStoreRepo;
+import com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository.IOrganisationRepo;
 import com.muz1kash1.webmarkettesttask.model.domain.Organisation;
 import com.muz1kash1.webmarkettesttask.model.dto.OrganisationDto;
 import com.muz1kash1.webmarkettesttask.model.dto.SignupOrganisationDto;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class OrganisationService {
-  IStoreRepo marketRepository;
+  IOrganisationRepo organisationRepository;
 
   public OrganisationDto disableOrganisationById(final long id) {
-    Organisation organisation = marketRepository.freezeOrganisationById(id);
+    Organisation organisation = organisationRepository.freezeOrganisationById(id);
     return new OrganisationDto(
       organisation.getId(),
       organisation.getOrganisationName(),
@@ -25,7 +27,7 @@ public class OrganisationService {
   }
 
   public OrganisationDto addOrganisationApplication(final SignupOrganisationDto signOrganisationDto) {
-    Organisation organisation = marketRepository.addOrganisationApplication(signOrganisationDto);
+    Organisation organisation = organisationRepository.addOrganisationApplication(signOrganisationDto);
     return new OrganisationDto(
       organisation.getId(),
       organisation.getOrganisationName(),
@@ -37,7 +39,7 @@ public class OrganisationService {
   }
 
   public OrganisationDto enableOrganisationById(final long id) {
-    Organisation organisation = marketRepository.unfreezeOrganisationById(id);
+    Organisation organisation = organisationRepository.unfreezeOrganisationById(id);
     return new OrganisationDto(
       organisation.getId(),
       organisation.getOrganisationName(),
