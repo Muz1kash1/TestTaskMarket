@@ -1,6 +1,6 @@
 package com.muz1kash1.webmarkettesttask.infrastructure.service;
 
-import com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository.IStoreRepo;
+import com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository.IPurchaseRepo;
 import com.muz1kash1.webmarkettesttask.model.domain.Purchase;
 import com.muz1kash1.webmarkettesttask.model.dto.MakePurchaseDto;
 import com.muz1kash1.webmarkettesttask.model.dto.PurchaseDto;
@@ -14,10 +14,10 @@ import java.util.List;
 @Service
 @Slf4j
 public class PurchaseService {
-  private final IStoreRepo marketRepository;
+  private final IPurchaseRepo purchaseRepository;
 
   public PurchaseDto makePurchase(final MakePurchaseDto makePurchaseDto) {
-    Purchase purchase = marketRepository.addPurchase(makePurchaseDto);
+    Purchase purchase = purchaseRepository.addPurchase(makePurchaseDto);
     return new PurchaseDto(
       purchase.getId(),
       purchase.getUserId(),
@@ -30,7 +30,7 @@ public class PurchaseService {
 
 
   public PurchaseDto getPurchase(final long id) {
-    Purchase purchase = marketRepository.getPurchaseById(id);
+    Purchase purchase = purchaseRepository.getPurchaseById(id);
     return new PurchaseDto(
       purchase.getId(),
       purchase.getUserId(),
@@ -43,7 +43,7 @@ public class PurchaseService {
 
   public List<PurchaseDto> getPurchasesOfUser(final long userId) {
     log.info("Зашло в контроллерный метод");
-    List<Purchase> purchases = marketRepository.getPurchasesOfUser(userId);
+    List<Purchase> purchases = purchaseRepository.getPurchasesOfUser(userId);
     List<PurchaseDto> purchaseDtos = new ArrayList<>();
     for (
       Purchase purchase : purchases
@@ -63,7 +63,7 @@ public class PurchaseService {
   }
 
   public PurchaseDto refundPurchase(final long id) {
-    Purchase purchase = marketRepository.refundPurchase(id);
+    Purchase purchase = purchaseRepository.refundPurchase(id);
     return new PurchaseDto(
       purchase.getId(),
       purchase.getUserId(),

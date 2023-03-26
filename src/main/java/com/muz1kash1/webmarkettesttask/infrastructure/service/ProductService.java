@@ -1,6 +1,6 @@
 package com.muz1kash1.webmarkettesttask.infrastructure.service;
 
-import com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository.IStoreRepo;
+import com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository.IProductRepo;
 import com.muz1kash1.webmarkettesttask.model.domain.Discount;
 import com.muz1kash1.webmarkettesttask.model.domain.Product;
 import com.muz1kash1.webmarkettesttask.model.domain.Review;
@@ -19,10 +19,10 @@ import java.util.List;
 @AllArgsConstructor
 @Service
 public class ProductService {
-  private final IStoreRepo marketRepository;
+  private final IProductRepo productRepository;
 
   public List<ProductDto> getAllProducts() {
-    List<Product> products = marketRepository.getAllProducts();
+    List<Product> products = productRepository.getAllProducts();
     List<ProductDto> productDtos = new ArrayList<>();
     for (
       Product product : products
@@ -44,8 +44,8 @@ public class ProductService {
   }
 
   public ProductDto getProductById(final long id) {
-    Product product = marketRepository.getProductById(id);
-    ProductDto productDto = new ProductDto(
+    Product product = productRepository.getProductById(id);
+    return new ProductDto(
       product.getId(),
       product.getName(),
       product.getDescription(),
@@ -55,11 +55,10 @@ public class ProductService {
       product.getKeywords(),
       product.getChars()
     );
-    return productDto;
   }
 
   public ProductDto addNewProduct(final AddProductDto addProductDto) {
-    Product product = marketRepository.addProduct(
+    Product product = productRepository.addProduct(
       new Product(
         1,
         addProductDto.getName(),
@@ -85,7 +84,7 @@ public class ProductService {
   }
 
   public ProductDto updateProduct(final long id, final UpdateProductDto updateProductDto) {
-    Product product = marketRepository.getProductById(id);
+    Product product = productRepository.getProductById(id);
     product.setName(updateProductDto.getName());
     product.setDescription(updateProductDto.getDescription());
     product.setOrganisationName(updateProductDto.getOrganisationName());
@@ -94,7 +93,7 @@ public class ProductService {
     product.setPrice(updateProductDto.getPrice());
     product.setKeywords(updateProductDto.getKeywords());
 
-    Product updatedProduct = marketRepository.updateProductById(id, product);
+    Product updatedProduct = productRepository.updateProductById(id, product);
     return new ProductDto(
       updatedProduct.getId(),
       updateProductDto.getName(),
@@ -108,7 +107,7 @@ public class ProductService {
   }
 
   public void deleteProduct(final long id) {
-    marketRepository.deleteProductById(id);
+    productRepository.deleteProductById(id);
   }
 
   public DiscountDto changeDiscountToProduct(final long productId, final DiscountChangeDto discountChangeDto) {
@@ -117,7 +116,7 @@ public class ProductService {
       discountChangeDto.getDiscountSize(),
       discountChangeDto.getDuration()
     );
-    Discount discountToReturn = marketRepository.changeDiscountToProduct(productId, discount);
+    Discount discountToReturn = productRepository.changeDiscountToProduct(productId, discount);
     return new DiscountDto(
       discountToReturn.getId(),
       discountToReturn.getDiscountSize(),
@@ -128,9 +127,9 @@ public class ProductService {
   public ReviewDto addNewReviewForPurchasedProduct(final long id,
                                                    final AddReviewDto addReviewDto) {
     com.muz1kash1.webmarkettesttask.model.domain.Review review;
-    List<Product> products = marketRepository.getPurchasedProducts(addReviewDto.getUserId());
+    List<Product> products = productRepository.getPurchasedProducts(addReviewDto.getUserId());
     if (products.stream().anyMatch(o -> o.getId() == id)) {
-      review = marketRepository.addReview(
+      review = productRepository.addReview(
         new Review(1, addReviewDto.getUserId(), id, addReviewDto.getReviewText(), addReviewDto.getRating()));
     } else {
       throw new RuntimeException("Нельзя оставлять отзыв не купив товар");
@@ -149,9 +148,9 @@ public class ProductService {
       = new Review(
       reviewId, addReviewDto.getUserId(), id, addReviewDto.getReviewText(), addReviewDto.getRating()
     );
-    Review reviewForCheck = marketRepository.getReviewById(reviewId);
+    Review reviewForCheck = productRepository.getReviewById(reviewId);
     if (reviewForCheck.getUserId() == addReviewDto.getUserId()) {
-      Review reviewToUpdate = marketRepository.updateProductAndReviewById(review);
+      Review reviewToUpdate = productRepository.updateProductAndReviewById(review);
       return new ReviewDto(
         reviewToUpdate.getId(),
         reviewToUpdate.getUserId(),
@@ -159,10 +158,12 @@ public class ProductService {
         reviewToUpdate.getReviewText(),
         reviewToUpdate.getRating()
       );
-    } else throw new RuntimeException("Только тот кто оставил ревью может его менять");
+    } else {
+      throw new RuntimeException("Только тот кто оставил ревью может его менять");
+    }
   }
 
   public void deleteReviewById(final long id, final long reviewId) {
-    marketRepository.deleteReviewById(id, reviewId);
+    productRepository.deleteReviewById(id, reviewId);
   }
 }
