@@ -1,6 +1,6 @@
 package com.muz1kash1.webmarkettesttask.config;
 
-import com.muz1kash1.webmarkettesttask.infrastructure.service.JpaUserDetailsService;
+import com.muz1kash1.webmarkettesttask.infrastructure.service.authentication.JpaUserDetailsService;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;

@@ -1,4 +1,4 @@
-package com.muz1kash1.webmarkettesttask.infrastructure.service;
+package com.muz1kash1.webmarkettesttask.infrastructure.service.authentication;
 
 
 import lombok.extern.slf4j.Slf4j;

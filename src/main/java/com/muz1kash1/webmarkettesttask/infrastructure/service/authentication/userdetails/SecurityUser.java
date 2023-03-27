@@ -1,5 +1,6 @@
-package com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres;
+package com.muz1kash1.webmarkettesttask.infrastructure.service.authentication.userdetails;
 
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

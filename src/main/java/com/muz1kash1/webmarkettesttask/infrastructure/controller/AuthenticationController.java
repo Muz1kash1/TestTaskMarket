@@ -1,6 +1,6 @@
 package com.muz1kash1.webmarkettesttask.infrastructure.controller;
 
-import com.muz1kash1.webmarkettesttask.infrastructure.service.TokenService;
+import com.muz1kash1.webmarkettesttask.infrastructure.service.authentication.TokenService;
 import com.muz1kash1.webmarkettesttask.infrastructure.service.UserService;
 import com.muz1kash1.webmarkettesttask.model.dto.SignUpDto;
 import com.muz1kash1.webmarkettesttask.model.dto.UserDto;
