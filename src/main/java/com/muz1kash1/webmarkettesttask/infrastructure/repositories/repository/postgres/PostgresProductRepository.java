@@ -1,13 +1,15 @@
 package com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres;
 
-import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.ProductReview;
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.OrganisationProduct;
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.ProductDiscount;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.ProductReview;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User;
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.IProductRepo;
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.DiscountRepository;
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.OrganisationProductRepository;
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.ProductDiscountRepository;
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.ProductReviewsRepository;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.UserRepository;
 import com.muz1kash1.webmarkettesttask.model.domain.Discount;
 import com.muz1kash1.webmarkettesttask.model.domain.Product;
 import com.muz1kash1.webmarkettesttask.model.domain.Review;
@@ -28,6 +30,7 @@ public class PostgresProductRepository implements IProductRepo {
   private final DiscountRepository discountRepository;
   private final ProductDiscountRepository productDiscountRepository;
   private final ProductReviewsRepository productReviewsRepository;
+  private final UserRepository userRepository;
 
   @Override
   public Product getProductById(long id) {
@@ -130,10 +133,12 @@ public class PostgresProductRepository implements IProductRepo {
     );
   }
 
+
   @Override
-  public List<Product> getPurchasedProducts(final long userId) {
+  public List<Product> getPurchasedProducts(final String username) {
+    User user = userRepository.findUserByUsername(username).get();
     List<com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product> products
-      = productRepository.findAllPurchasedProducts(userId);
+      = productRepository.findAllPurchasedProducts(user.getId());
     List<Product> productList = new ArrayList<>();
     for (
       com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product product : products
@@ -202,6 +207,14 @@ public class PostgresProductRepository implements IProductRepo {
   @Override
   public void deleteReviewById(final long id, final long reviewId) {
     productReviewsRepository.deleteById(reviewId);
+  }
+
+  @Override
+  public Long getIdOfLastReview(){
+    if (productReviewsRepository.findTopByOrderByIdDesc().isPresent()) {
+      return productReviewsRepository.findTopByOrderByIdDesc().get().getId();
+    }
+    else return 1L;
   }
 
   private static com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product persistantProductFromDomain(

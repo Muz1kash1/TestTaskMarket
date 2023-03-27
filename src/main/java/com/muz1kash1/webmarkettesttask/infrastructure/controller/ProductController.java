@@ -5,13 +5,12 @@ import com.muz1kash1.webmarkettesttask.model.dto.AddProductDto;
 import com.muz1kash1.webmarkettesttask.model.dto.AddReviewDto;
 import com.muz1kash1.webmarkettesttask.model.dto.DiscountChangeDto;
 import com.muz1kash1.webmarkettesttask.model.dto.DiscountDto;
-import com.muz1kash1.webmarkettesttask.model.dto.MakePurchaseDto;
 import com.muz1kash1.webmarkettesttask.model.dto.ProductDto;
-import com.muz1kash1.webmarkettesttask.model.dto.PurchaseDto;
 import com.muz1kash1.webmarkettesttask.model.dto.ReviewDto;
 import com.muz1kash1.webmarkettesttask.model.dto.UpdateProductDto;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -68,22 +67,25 @@ public class ProductController {
 
   @PostMapping("/products/{id}/reviews")
   public ResponseEntity<ReviewDto> addNewReviewForPurchasedProduct(@PathVariable long id,
-                                                                   @RequestBody AddReviewDto addReviewDto) {
-    return ResponseEntity.ok().body(productService.addNewReviewForPurchasedProduct(id, addReviewDto));
+                                                                   @RequestBody AddReviewDto addReviewDto,
+                                                                   JwtAuthenticationToken principal) {
+    return ResponseEntity
+      .ok()
+      .body(productService.addNewReviewForPurchasedProduct(id, addReviewDto, principal.getName()));
 
   }
 
   @PutMapping("/products/{id}/reviews/{reviewId}")
-  public ResponseEntity<ReviewDto> updateReview(@PathVariable long id
-    , @PathVariable long reviewId
-    , @RequestBody AddReviewDto addReviewDto) {
-    return ResponseEntity.ok().body(productService.udateExistingReview(id, reviewId, addReviewDto));
+  public ResponseEntity<ReviewDto> updateReview(@PathVariable long id, @PathVariable long reviewId,
+                                                @RequestBody AddReviewDto addReviewDto,
+                                                JwtAuthenticationToken principal) {
+    return ResponseEntity.ok().body(productService.updateExistingReview(id, reviewId, addReviewDto, principal.getName()));
   }
 
   @DeleteMapping("/products/{id}/reviews/{reviewId}")
   public ResponseEntity<Void> deleteReview(@PathVariable long id,
                                            @PathVariable long reviewId) {
-    productService.deleteReviewById(id,reviewId);
+    productService.deleteReviewById(id, reviewId);
     return ResponseEntity.noContent().build();
   }
 

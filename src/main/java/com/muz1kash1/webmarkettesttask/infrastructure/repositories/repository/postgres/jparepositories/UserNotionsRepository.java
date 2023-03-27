@@ -14,4 +14,5 @@ public interface UserNotionsRepository extends JpaRepository<UserNotions, Long> 
     value = "SELECT notions.id,header,notion_text,notion_date from notions inner join user_notions on notions.id = user_notions.id where user_notions.user_id =:userId ",
     nativeQuery = true)
   List<Long> getIdOfNotionsOfUser(@Param(("userId")) long userid);
+  List<UserNotions> findAllByUserId(long id);
 }

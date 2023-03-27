@@ -5,7 +5,7 @@ import com.muz1kash1.webmarkettesttask.model.dto.MakePurchaseDto;
 import java.util.List;
 
 public interface IPurchaseRepo {
-  Purchase addPurchase(MakePurchaseDto makePurchaseDto);
+  Purchase addPurchase(MakePurchaseDto makePurchaseDto, String username);
 
   Purchase getPurchaseById(long id);
 
@@ -13,4 +13,5 @@ public interface IPurchaseRepo {
 
   Purchase refundPurchase(long id);
 
+  List<Purchase> getPurchasesOfUserByUsername(String name);
 }

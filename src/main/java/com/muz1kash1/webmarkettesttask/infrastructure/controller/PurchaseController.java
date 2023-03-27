@@ -5,6 +5,7 @@ import com.muz1kash1.webmarkettesttask.model.dto.MakePurchaseDto;
 import com.muz1kash1.webmarkettesttask.model.dto.PurchaseDto;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,8 +20,9 @@ import java.util.List;
 public class PurchaseController {
   private final PurchaseService purchaseService;
   @PostMapping("/purchases")
-  public ResponseEntity<PurchaseDto> purchaseProduct(@RequestBody @Valid MakePurchaseDto makePurchaseDto) {
-      PurchaseDto purchaseDto = purchaseService.makePurchase(makePurchaseDto);
+  public ResponseEntity<PurchaseDto> purchaseProduct(@RequestBody @Valid MakePurchaseDto makePurchaseDto,
+                                                     JwtAuthenticationToken principle) {
+      PurchaseDto purchaseDto = purchaseService.makePurchase(makePurchaseDto,principle.getName());
       return ResponseEntity.ok().body(purchaseDto);
   }
   @GetMapping("/users/{id}/purchaseshistory")
@@ -36,6 +38,10 @@ public class PurchaseController {
   @PutMapping("/purchases/{id}/refund")
   public ResponseEntity<PurchaseDto> requestRefund(@PathVariable long id) {
     return ResponseEntity.ok().body(purchaseService.refundPurchase(id));
+  }
 
+  @GetMapping("/purchases/history")
+  public ResponseEntity<List<PurchaseDto>> getPurchasesOfAuthorizedUser(JwtAuthenticationToken principal){
+    return ResponseEntity.ok().body(purchaseService.getPurchasesOfUserByUsername(principal.getName()));
   }
 }

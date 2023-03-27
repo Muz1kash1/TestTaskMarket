@@ -4,8 +4,8 @@ import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgr
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Organisation;
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.OrganisationProduct;
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product;
-import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User;
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.ProductDiscount;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User;
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.IPurchaseRepo;
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.DiscountRepository;
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.OrganisationProductRepository;
@@ -40,7 +40,7 @@ public class PostgresPurchaseRepository implements IPurchaseRepo {
     purchaseRepository;
 
   @Transactional
-  @Override public Purchase addPurchase(final MakePurchaseDto makePurchaseDto) {
+  @Override public Purchase addPurchase(final MakePurchaseDto makePurchaseDto, String username) {
     Product product = productRepository
       .findProductById(makePurchaseDto.getProductId())
       .get();
@@ -48,8 +48,10 @@ public class PostgresPurchaseRepository implements IPurchaseRepo {
       = productDiscountRepository.findByProductId(product.getId());
     Discount discount
       = discountRepository.getReferenceById(productDiscounts.get(0).getDiscountId());
-    User user = userRepository.getReferenceById(
-      makePurchaseDto.getUserId());
+
+    User user = userRepository.findUserByUsername(
+      username).get();
+
     OrganisationProduct organisationProduct = organisationProductRepository.findByProductId(product.getId());
     Organisation organisation = organisationRepository.getReferenceById(organisationProduct.getOrganisationId());
     User userReceiver
@@ -80,7 +82,7 @@ public class PostgresPurchaseRepository implements IPurchaseRepo {
 
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Purchase purchase
       = new com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Purchase(
-      makePurchaseDto.getUserId(),
+      user.getId(),
       makePurchaseDto.getProductId(),
       false,
       price,
@@ -116,7 +118,6 @@ public class PostgresPurchaseRepository implements IPurchaseRepo {
   public List<Purchase> getPurchasesOfUser(final long Userid) {
     List<com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Purchase> purchases
       = purchaseRepository.findAllByUserId(Userid);
-    log.info("вот что вернулось с бека" + purchases.toString());
     List<Purchase> purchasesToReturn = new ArrayList<>();
     for (
       com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Purchase purchase : purchases
@@ -141,17 +142,42 @@ public class PostgresPurchaseRepository implements IPurchaseRepo {
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Purchase purchase
       = purchaseRepository.getReferenceById(id);
     log.info(purchase.toString());
-    purchase.setRefunded(true);
-    log.info(purchase.toString());
-    purchaseRepository.save(purchase);
-    return new Purchase(
-      purchase.getId(),
-      purchase.getUserId(),
-      purchase.getProductId(),
-      purchase.isRefunded(),
-      purchase.getPrice(),
-      purchase.getPurchaseDate()
-    );
+    if (LocalDate.now().minusDays(1).isBefore(purchase.getPurchaseDate())) {
+      purchase.setRefunded(true);
+      log.info(purchase.toString());
+      purchaseRepository.save(purchase);
+      return new Purchase(
+        purchase.getId(),
+        purchase.getUserId(),
+        purchase.getProductId(),
+        purchase.isRefunded(),
+        purchase.getPrice(),
+        purchase.getPurchaseDate()
+      );
+    }
+    throw new RuntimeException("Вернуть можно только в течение суток");
+  }
+
+  @Override public List<Purchase> getPurchasesOfUserByUsername(final String name) {
+    User user = userRepository.findUserByUsername(name).get();
+    List<com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Purchase> purchases
+      = purchaseRepository.findAllByUserId(user.getId());
+    List<Purchase> purchasesToReturn = new ArrayList<>();
+    for (
+      com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Purchase purchase : purchases
+    ) {
+      purchasesToReturn.add(
+        new Purchase(
+          purchase.getId(),
+          purchase.getUserId(),
+          purchase.getProductId(),
+          purchase.isRefunded(),
+          purchase.getPrice(),
+          purchase.getPurchaseDate()
+        )
+      );
+    }
+    return purchasesToReturn;
   }
 
 }

@@ -17,7 +17,7 @@ public interface IProductRepo {
 
   Discount changeDiscountToProduct(long productId, Discount discount);
 
-  List<Product> getPurchasedProducts(long userId);
+  List<Product> getPurchasedProducts(final String username);
 
   Review addReview(Review review);
 
@@ -26,4 +26,6 @@ public interface IProductRepo {
   Review getReviewById(long reviewId);
 
   void deleteReviewById(long id, long reviewId);
+
+  Long getIdOfLastReview();
 }

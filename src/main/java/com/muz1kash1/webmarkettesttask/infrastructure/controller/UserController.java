@@ -6,6 +6,8 @@ import com.muz1kash1.webmarkettesttask.model.dto.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,7 +41,8 @@ public class UserController {
   }
 
   @DeleteMapping("/users/{userid}")
-  public ResponseEntity<Void> deleteUser(@PathVariable long userid) {
+  public ResponseEntity<Void> deleteUser(@PathVariable long userid, Authentication authentication) {
+    log.info(authentication.getAuthorities().toString());
     userService.deleteUserById(userid);
     return ResponseEntity.noContent().build();
   }
@@ -63,5 +66,17 @@ public class UserController {
   public ResponseEntity<List<NotionDto>> getNotification(@PathVariable long userid) {
     List<NotionDto> notionDtos = userService.getUserNotions(userid);
     return ResponseEntity.ok().body(notionDtos);
+  }
+
+  @GetMapping("/notifications")
+  public ResponseEntity<List<NotionDto>> getNotificationsForAuthorized(JwtAuthenticationToken principal) {
+    List<NotionDto> notionDtos = userService.getAuthorizedUserNotions(principal.getName());
+    return ResponseEntity.ok().body(notionDtos);
+  }
+
+  @GetMapping("/profile")
+  public ResponseEntity<UserDto> getAuthorizedUserProfile(JwtAuthenticationToken principal) {
+    UserDto userDto = userService.getUserByUsername(principal.getName());
+    return ResponseEntity.ok().body(userDto);
   }
 }

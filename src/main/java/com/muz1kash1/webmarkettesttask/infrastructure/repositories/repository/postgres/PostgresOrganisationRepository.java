@@ -1,7 +1,9 @@
 package com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres;
 
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Organisation;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User;
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.IOrganisationRepo;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.UserRepository;
 import com.muz1kash1.webmarkettesttask.model.dto.SignupOrganisationDto;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.ComponentScan;
@@ -11,7 +13,10 @@ import org.springframework.stereotype.Repository;
 @ComponentScan("com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres")
 @Repository
 public class PostgresOrganisationRepository implements IOrganisationRepo {
-  com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.OrganisationRepository organisationRepository;
+  com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.OrganisationRepository
+    organisationRepository;
+  UserRepository userRepository;
+
   @Override
   public com.muz1kash1.webmarkettesttask.model.domain.Organisation freezeOrganisationById(final long id) {
     Organisation organisation = organisationRepository.getReferenceById(id);
@@ -44,13 +49,15 @@ public class PostgresOrganisationRepository implements IOrganisationRepo {
 
   @Override
   public com.muz1kash1.webmarkettesttask.model.domain.Organisation addOrganisationApplication(
-    final SignupOrganisationDto signOrganisationDto) {
+    final SignupOrganisationDto signOrganisationDto,
+    String username) {
+    User user = userRepository.findUserByUsername(username).get();
     Organisation organisation = new Organisation(
       signOrganisationDto.getOrganisationName(),
       signOrganisationDto.getOrganisationDescription(),
       signOrganisationDto.getLogotypeId(),
       false,
-      signOrganisationDto.getOrganisationOwnerId()
+      user.getId()
     );
     organisationRepository.save(organisation);
     Organisation organisationToReturn = organisationRepository.findTopByOrderByIdDesc().get();

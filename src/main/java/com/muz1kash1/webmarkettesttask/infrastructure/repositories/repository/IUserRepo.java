@@ -27,4 +27,6 @@ public interface IUserRepo {
   List<Notion> getNotionsOfUser(long userid);
 
   User loadUserByUsername(final String username);
+
+  List<Notion> getNotionsOfAuthorizedUser(String name);
 }
