@@ -24,4 +24,6 @@ public class User {
   @Min(0)
   private BigDecimal balance;
   private boolean enabled;
+  @NotEmpty
+  private String roles;
 }

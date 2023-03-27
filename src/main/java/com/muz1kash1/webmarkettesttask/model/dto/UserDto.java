@@ -13,4 +13,6 @@ public class UserDto {
   private final BigDecimal balance;
   private final String password;
   private final boolean enabled;
+
+  private final String roles;
 }
