@@ -18,8 +18,8 @@ import java.util.List;
 public class PurchaseService {
   private final IPurchaseRepo purchaseRepository;
 
-  public PurchaseDto makePurchase(final MakePurchaseDto makePurchaseDto) {
-    Purchase purchase = purchaseRepository.addPurchase(makePurchaseDto);
+  public PurchaseDto makePurchase(final MakePurchaseDto makePurchaseDto, String name) {
+    Purchase purchase = purchaseRepository.addPurchase(makePurchaseDto, name);
     return new PurchaseDto(
       purchase.getId(),
       purchase.getUserId(),
@@ -44,7 +44,6 @@ public class PurchaseService {
   }
 
   public List<PurchaseDto> getPurchasesOfUser(final long userId) {
-    log.info("Зашло в контроллерный метод");
     List<Purchase> purchases = purchaseRepository.getPurchasesOfUser(userId);
     List<PurchaseDto> purchaseDtos = new ArrayList<>();
     for (
@@ -74,5 +73,25 @@ public class PurchaseService {
       purchase.getPrice(),
       purchase.getPurchaseDate()
     );
+  }
+
+  public List<PurchaseDto> getPurchasesOfUserByUsername(final String name) {
+    List<Purchase> purchases = purchaseRepository.getPurchasesOfUserByUsername(name);
+    List<PurchaseDto> purchaseDtos = new ArrayList<>();
+    for (
+      Purchase purchase : purchases
+    ) {
+      purchaseDtos.add(
+        new PurchaseDto(
+          purchase.getId(),
+          purchase.getUserId(),
+          purchase.getProductId(),
+          purchase.isRefunded(),
+          purchase.getPrice(),
+          purchase.getPurchaseDate()
+        )
+      );
+    }
+    return purchaseDtos;
   }
 }

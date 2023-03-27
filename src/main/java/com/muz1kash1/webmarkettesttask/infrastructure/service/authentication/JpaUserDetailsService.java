@@ -1,7 +1,7 @@
-package com.muz1kash1.webmarkettesttask.infrastructure.service;
+package com.muz1kash1.webmarkettesttask.infrastructure.service.authentication;
 
-import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.SecurityUser;
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.UserRepository;
+import com.muz1kash1.webmarkettesttask.infrastructure.service.authentication.userdetails.SecurityUser;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;

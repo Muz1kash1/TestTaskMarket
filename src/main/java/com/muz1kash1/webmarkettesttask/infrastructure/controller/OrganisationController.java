@@ -5,6 +5,7 @@ import com.muz1kash1.webmarkettesttask.model.dto.OrganisationDto;
 import com.muz1kash1.webmarkettesttask.model.dto.SignupOrganisationDto;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,8 +28,9 @@ public class OrganisationController {
   }
   @PostMapping("/organisations")
   public ResponseEntity<OrganisationDto> addOrganisationApplication(@RequestBody SignupOrganisationDto
-                                                                    signOrganisationDto){
-    OrganisationDto organisationDto = organisationService.addOrganisationApplication(signOrganisationDto);
+                                                                    signOrganisationDto,
+                                                                    JwtAuthenticationToken principal){
+    OrganisationDto organisationDto = organisationService.addOrganisationApplication(signOrganisationDto,principal.getName());
     return ResponseEntity.created(URI.create("/organisations/" + String.valueOf(organisationDto.getId()))).body(organisationDto);
   }
 }

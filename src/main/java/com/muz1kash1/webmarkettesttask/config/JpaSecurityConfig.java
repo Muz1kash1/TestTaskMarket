@@ -1,6 +1,6 @@
 package com.muz1kash1.webmarkettesttask.config;
 
-import com.muz1kash1.webmarkettesttask.infrastructure.service.JpaUserDetailsService;
+import com.muz1kash1.webmarkettesttask.infrastructure.service.authentication.JpaUserDetailsService;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -12,9 +12,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,40 +40,47 @@ public class JpaSecurityConfig {
     http
       .csrf().disable()
       .userDetailsService(jpaUserDetailsService)
+      .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
       .sessionManagement(session -> session
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//      .headers(headers -> headers.frameOptions().sameOrigin())
+      .headers(headers -> headers.frameOptions().sameOrigin())
       .authorizeHttpRequests()
-      .requestMatchers("/signup", "/signin").permitAll()
-      .requestMatchers(HttpMethod.POST, "/products")
-      .hasAuthority("ADMIN")
-      .requestMatchers(HttpMethod.PUT, "/products/**")
-      .hasAuthority("ADMIN")
+      .requestMatchers(HttpMethod.POST, "/signup")
+      .permitAll()
+      .requestMatchers(HttpMethod.POST,"/signin")
+      .permitAll()
+      .requestMatchers(HttpMethod.POST,"/admin/signup")
+      .permitAll()
       .requestMatchers(HttpMethod.DELETE, "/products/{id}")
-      .hasAuthority("ADMIN")
+      .hasAuthority("SCOPE_ADMIN,USER")
       .requestMatchers(HttpMethod.PUT, "/products/{id}/discounts/{discountId}")
-      .hasAuthority("ADMIN")
+      .hasAuthority("SCOPE_ADMIN,USER")
       .requestMatchers(HttpMethod.POST, "/products/{id}/discounts")
-      .hasAuthority("ADMIN")
+      .hasAuthority("SCOPE_ADMIN,USER")
       .requestMatchers(HttpMethod.GET, "/users/{userid}")
-      .hasAuthority("ADMIN")
+      .hasAuthority("SCOPE_ADMIN,USER")
       .requestMatchers(HttpMethod.DELETE, "/users/{userid}")
-      .hasAuthority("ADMIN")
+      .hasAuthority("SCOPE_ADMIN,USER")
       .requestMatchers(HttpMethod.PUT, "/users/{userid}/balance")
-      .hasAuthority("ADMIN")
+      .hasAuthority("SCOPE_ADMIN,USER")
       .requestMatchers(HttpMethod.PUT, "/users/{userid}/freeze")
-      .hasAuthority("ADMIN")
+      .hasAuthority("SCOPE_ADMIN,USER")
       .requestMatchers(HttpMethod.POST, "/users/{userid}/notifications")
-      .hasAuthority("ADMIN")
+      .hasAuthority("SCOPE_ADMIN,USER")
       .requestMatchers(HttpMethod.GET, "/users/{userid}/purchases")
-      .hasAuthority("ADMIN")
+      .hasAuthority("SCOPE_ADMIN,USER")
       .requestMatchers(HttpMethod.PUT, "/organisations/{id}/freeze")
-      .hasAuthority("ADMIN")
+      .hasAuthority("SCOPE_ADMIN,USER")
       .requestMatchers(HttpMethod.PUT, "/organisations/{id}/unfreeze")
-      .hasAuthority("ADMIN")
-      .anyRequest().authenticated()
+      .hasAuthority("SCOPE_ADMIN,USER")
+      .requestMatchers(HttpMethod.GET, "/purchases/{id}")
+      .hasAuthority("SCOPE_ADMIN,USER")
+      .anyRequest()
+      .authenticated()
       .and()
-      .httpBasic();
+      .httpBasic(
+        Customizer.withDefaults()
+      );
     return http.build();
   }
 

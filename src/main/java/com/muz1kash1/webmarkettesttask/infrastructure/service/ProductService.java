@@ -1,9 +1,11 @@
 package com.muz1kash1.webmarkettesttask.infrastructure.service;
 
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.IProductRepo;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.IUserRepo;
 import com.muz1kash1.webmarkettesttask.model.domain.Discount;
 import com.muz1kash1.webmarkettesttask.model.domain.Product;
 import com.muz1kash1.webmarkettesttask.model.domain.Review;
+import com.muz1kash1.webmarkettesttask.model.domain.User;
 import com.muz1kash1.webmarkettesttask.model.dto.AddProductDto;
 import com.muz1kash1.webmarkettesttask.model.dto.AddReviewDto;
 import com.muz1kash1.webmarkettesttask.model.dto.DiscountChangeDto;
@@ -22,6 +24,7 @@ import java.util.List;
 @Transactional
 public class ProductService {
   private final IProductRepo productRepository;
+  private final IUserRepo userRepository;
 
   public List<ProductDto> getAllProducts() {
     List<Product> products = productRepository.getAllProducts();
@@ -127,12 +130,15 @@ public class ProductService {
   }
 
   public ReviewDto addNewReviewForPurchasedProduct(final long id,
-                                                   final AddReviewDto addReviewDto) {
+                                                   final AddReviewDto addReviewDto,
+                                                   String username) {
     com.muz1kash1.webmarkettesttask.model.domain.Review review;
-    List<Product> products = productRepository.getPurchasedProducts(addReviewDto.getUserId());
+
+    List<Product> products = productRepository.getPurchasedProducts(username);
     if (products.stream().anyMatch(o -> o.getId() == id)) {
+
       review = productRepository.addReview(
-        new Review(1, addReviewDto.getUserId(), id, addReviewDto.getReviewText(), addReviewDto.getRating()));
+        new Review(productRepository.getIdOfLastReview(), userRepository.getUserByUsername(username).getId(), id, addReviewDto.getReviewText(), addReviewDto.getRating()));
     } else {
       throw new RuntimeException("Нельзя оставлять отзыв не купив товар");
     }
@@ -145,13 +151,14 @@ public class ProductService {
     );
   }
 
-  public ReviewDto udateExistingReview(final long id, final long reviewId, final AddReviewDto addReviewDto) {
+  public ReviewDto updateExistingReview(final long id, final long reviewId, final AddReviewDto addReviewDto, String username) {
+    User user = userRepository.getUserByUsername(username);
     Review review
       = new Review(
-      reviewId, addReviewDto.getUserId(), id, addReviewDto.getReviewText(), addReviewDto.getRating()
+      reviewId, user.getId(), id, addReviewDto.getReviewText(), addReviewDto.getRating()
     );
     Review reviewForCheck = productRepository.getReviewById(reviewId);
-    if (reviewForCheck.getUserId() == addReviewDto.getUserId()) {
+    if (reviewForCheck.getUserId() == user.getId()) {
       Review reviewToUpdate = productRepository.updateProductAndReviewById(review);
       return new ReviewDto(
         reviewToUpdate.getId(),

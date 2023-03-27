@@ -26,8 +26,8 @@ public class OrganisationService {
     );
   }
 
-  public OrganisationDto addOrganisationApplication(final SignupOrganisationDto signOrganisationDto) {
-    Organisation organisation = organisationRepository.addOrganisationApplication(signOrganisationDto);
+  public OrganisationDto addOrganisationApplication(final SignupOrganisationDto signOrganisationDto, String username) {
+    Organisation organisation = organisationRepository.addOrganisationApplication(signOrganisationDto, username);
     return new OrganisationDto(
       organisation.getId(),
       organisation.getOrganisationName(),

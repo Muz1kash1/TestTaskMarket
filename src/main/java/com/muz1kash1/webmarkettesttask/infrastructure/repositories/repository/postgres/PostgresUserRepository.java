@@ -10,6 +10,7 @@ import com.muz1kash1.webmarkettesttask.model.dto.NotionDto;
 import com.muz1kash1.webmarkettesttask.model.dto.SignUpDto;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 @ComponentScan("com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres")
 public class PostgresUserRepository implements IUserRepo {
+  private final PasswordEncoder encoder;
   private final com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.UserRepository
     userRepository;
   private final NotionsRepository notionsRepository;
@@ -113,10 +115,11 @@ public class PostgresUserRepository implements IUserRepo {
       com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User(
       signUpDto.getUsername(),
       signUpDto.getMail(),
-      signUpDto.getPassword(),
+      encoder.encode(signUpDto.getPassword()),
       BigDecimal.ZERO,
       true,
-      "USER");
+      "USER"
+    );
     userRepository.save(user);
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User userToReturn = userRepository
       .findUserByUsername(user.getUsername())
@@ -138,7 +141,7 @@ public class PostgresUserRepository implements IUserRepo {
       com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User(
       signUpDto.getUsername(),
       signUpDto.getMail(),
-      signUpDto.getPassword(),
+      encoder.encode(signUpDto.getPassword()),
       BigDecimal.ZERO,
       true,
       "USER,ADMIN"
@@ -203,8 +206,8 @@ public class PostgresUserRepository implements IUserRepo {
   public User loadUserByUsername(final String username) {
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
       userRepository
-      .findUserByUsername(username).
-      get();
+        .findUserByUsername(username).
+        get();
     return new User(
       user.getId(),
       user.getUsername(),
@@ -214,5 +217,32 @@ public class PostgresUserRepository implements IUserRepo {
       user.isEnabled(),
       user.getRoles()
     );
+  }
+
+  @Override
+  public List<com.muz1kash1.webmarkettesttask.model.domain.Notion> getNotionsOfAuthorizedUser(final String name) {
+    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user = userRepository
+      .findUserByUsername(name)
+      .get();
+    List<UserNotions> userNotions = userNotionsRepository.findAllByUserId(user.getId());
+    List<Notion> notions = new ArrayList<>();
+    for (
+      UserNotions userNotion: userNotions
+    ) {
+      notions.add(notionsRepository.getReferenceById(userNotion.getNotionId()));
+    }
+
+    List<com.muz1kash1.webmarkettesttask.model.domain.Notion> notionList = new ArrayList<>();
+    for (
+      Notion notion : notions
+    ) {
+      notionList.add(new com.muz1kash1.webmarkettesttask.model.domain.Notion(
+        notion.getId(),
+        notion.getHeader(),
+        notion.getNotionDate(),
+        notion.getNotionText()
+      ));
+    }
+    return notionList;
   }
 }

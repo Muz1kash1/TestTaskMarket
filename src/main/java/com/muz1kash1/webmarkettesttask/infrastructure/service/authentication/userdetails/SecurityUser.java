@@ -1,20 +1,25 @@
-package com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres;
+package com.muz1kash1.webmarkettesttask.infrastructure.service.authentication.userdetails;
 
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @AllArgsConstructor
 public class SecurityUser implements UserDetails {
   private User user;
 
   @Override public Collection<? extends GrantedAuthority> getAuthorities() {
-    return Arrays.stream(user.getRoles()
-        .split(",")).map(SimpleGrantedAuthority::new)
-      .toList();
+    Set<GrantedAuthority> authorities = new HashSet<>();
+    for (String role : user.getRoles().split(",")) {
+      SimpleGrantedAuthority sga = new SimpleGrantedAuthority(role);
+      authorities.add(sga);
+    }
+    return authorities;
   }
 
   @Override public String getPassword() {

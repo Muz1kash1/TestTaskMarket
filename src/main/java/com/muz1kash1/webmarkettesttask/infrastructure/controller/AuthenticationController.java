@@ -1,19 +1,24 @@
 package com.muz1kash1.webmarkettesttask.infrastructure.controller;
 
-import com.muz1kash1.webmarkettesttask.infrastructure.service.TokenService;
+import com.muz1kash1.webmarkettesttask.infrastructure.service.authentication.TokenService;
 import com.muz1kash1.webmarkettesttask.infrastructure.service.UserService;
 import com.muz1kash1.webmarkettesttask.model.dto.SignUpDto;
 import com.muz1kash1.webmarkettesttask.model.dto.UserDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -43,23 +48,39 @@ public class AuthenticationController {
       .body(userDto);
   }
 
+  @PostMapping("admin/signup")
+  public ResponseEntity<UserDto> adminSignup(@RequestBody @Valid SignUpDto signUpDto) {
+    UserDto userDto = userService.adminSignUp(signUpDto);
+    return ResponseEntity
+      .created(URI.create(
+        "/users/" + userService
+          .findByUsername(userService.findByUsername(userDto.getUsername()).getUsername())
+          .getId()))
+      .body(userDto);
+  }
+
   @PostMapping(value = "/signin")
   public String userLogin(Authentication authentication) {
+    log.info(authentication.getAuthorities().toString());
     log.info("token generated for '{}'", authentication.getName());
     String token = tokenService.generateToken(authentication);
     log.info("token granted {}", token);
     return token;
   }
 
-  @PreAuthorize("hasAuthority('USER')")
-  @GetMapping("/hellouser")
-  public String user() {
-    return "Hello user";
-  }
+  @GetMapping("/authorities")
+  public Map<String, Object> getPrincipalInfo(JwtAuthenticationToken principal) {
 
-  @PreAuthorize("hasAuthority('ADMIN')")
-  @GetMapping("/helloadmin")
-  public String admin() {
-    return "Hello admin";
+    Collection<String> authorities = principal.getAuthorities()
+      .stream()
+      .map(GrantedAuthority::getAuthority)
+      .collect(Collectors.toList());
+
+    Map<String, Object> info = new HashMap<>();
+    info.put("name", principal.getName());
+    info.put("authorities", authorities);
+    info.put("tokenAttributes", principal.getTokenAttributes());
+
+    return info;
   }
 }

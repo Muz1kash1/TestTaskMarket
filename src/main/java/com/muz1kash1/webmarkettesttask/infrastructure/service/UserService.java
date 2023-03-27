@@ -36,6 +36,11 @@ public class UserService {
     return getUserDtoFromDomain(user);
   }
 
+  public UserDto adminSignUp(SignUpDto signUpDto){
+    User user = userRepository.addAdmin(signUpDto);
+    return getUserDtoFromDomain(user);
+  }
+
   public UserDto findByUsername(String username) {
     User user = userRepository.getUserByUsername(username);
     if (username.equals(user.getUsername())) {
@@ -88,5 +93,26 @@ public class UserService {
       );
     }
     return notionDtos;
+  }
+
+  public List<NotionDto> getAuthorizedUserNotions(final String name) {
+    List<Notion> userNotions = userRepository.getNotionsOfAuthorizedUser(name);
+    List<NotionDto> notionDtos = new ArrayList<>();
+    for (Notion userNotion : userNotions) {
+      notionDtos.add(
+        new NotionDto(
+          userNotion.getId(),
+          userNotion.getHeader(),
+          userNotion.getNotionDate(),
+          userNotion.getNotionText()
+        )
+      );
+    }
+    return notionDtos;
+  }
+
+  public UserDto getUserByUsername(final String name) {
+    User user = userRepository.loadUserByUsername(name);
+    return getUserDtoFromDomain(user);
   }
 }
