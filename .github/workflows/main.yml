@@ -20,7 +20,5 @@ jobs:
           cache: 'maven'
       - name: Maven build
         run: mvn clean compile
-      - name: All tests
-        run: mvn test
       - name: Package app
         run: mvn package
