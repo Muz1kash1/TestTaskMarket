@@ -1,6 +1,6 @@
 package com.muz1kash1.webmarkettesttask.infrastructure.service;
 
-import com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository.IUserRepo;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.IUserRepo;
 import com.muz1kash1.webmarkettesttask.model.domain.Notion;
 import com.muz1kash1.webmarkettesttask.model.domain.User;
 import com.muz1kash1.webmarkettesttask.model.dto.NotionDto;
@@ -26,7 +26,8 @@ public class UserService {
       user.getMailAddress(),
       user.getBalance(),
       user.getPassword(),
-      user.isEnabled()
+      user.isEnabled(),
+      user.getRoles()
     );
   }
 

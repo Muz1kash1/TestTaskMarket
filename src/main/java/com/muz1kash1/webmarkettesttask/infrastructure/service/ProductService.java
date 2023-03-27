@@ -1,6 +1,6 @@
 package com.muz1kash1.webmarkettesttask.infrastructure.service;
 
-import com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository.IProductRepo;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.IProductRepo;
 import com.muz1kash1.webmarkettesttask.model.domain.Discount;
 import com.muz1kash1.webmarkettesttask.model.domain.Product;
 import com.muz1kash1.webmarkettesttask.model.domain.Review;

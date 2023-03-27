@@ -1,0 +1,219 @@
+package com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres;
+
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.ProductReview;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.OrganisationProduct;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.ProductDiscount;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.IProductRepo;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.DiscountRepository;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.OrganisationProductRepository;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.ProductDiscountRepository;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.ProductReviewsRepository;
+import com.muz1kash1.webmarkettesttask.model.domain.Discount;
+import com.muz1kash1.webmarkettesttask.model.domain.Product;
+import com.muz1kash1.webmarkettesttask.model.domain.Review;
+import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.ArrayList;
+import java.util.List;
+
+@AllArgsConstructor
+@Repository
+@ComponentScan("com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres")
+public class PostgresProductRepository implements IProductRepo {
+  private final com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.ProductRepository
+    productRepository;
+  private final OrganisationProductRepository organisationProductRepository;
+  private final DiscountRepository discountRepository;
+  private final ProductDiscountRepository productDiscountRepository;
+  private final ProductReviewsRepository productReviewsRepository;
+
+  @Override
+  public Product getProductById(long id) {
+    try {
+
+      com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product product = productRepository
+        .findProductById(id)
+        .get();
+      return new Product(
+        product.getId(),
+        product.getProductName(),
+        product.getDescription(),
+        product.getOrganisationName(),
+        product.getPrice(),
+        product.getQuantity(),
+        product.getKeywords(),
+        product.getChars()
+      );
+    } catch (java.util.NoSuchElementException e) {
+      return new Product();
+    }
+  }
+
+  @Override
+  @Transactional
+  public Product addProduct(Product product, long organisationId) {
+    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product productToSave
+      = persistantProductFromDomain(product);
+    productRepository.save(productToSave);
+    product.setId(productRepository.findTopByOrderByIdDesc().get().getId());
+    organisationProductRepository.save(new OrganisationProduct(organisationId, product.getId()));
+    return product;
+  }
+
+  @Override
+  public List<Product> getAllProducts() {
+    List<com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product> products
+      = productRepository.findAll();
+    List<Product> productList = new ArrayList<>();
+    for (
+      com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product product : products
+    ) {
+      productList.add(new Product(
+        product.getId(),
+        product.getProductName(),
+        product.getDescription(),
+        product.getOrganisationName(),
+        product.getPrice(),
+        product.getQuantity(),
+        product.getKeywords(),
+        product.getChars()
+      ));
+    }
+    return productList;
+  }
+
+  @Override
+  public Product updateProductById(final long id, final Product product) {
+    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product productToSave =
+      new
+        com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product(
+        product.getName(),
+        product.getDescription(),
+        product.getOrganisationName(),
+        product.getPrice(),
+        product.getQuantity(),
+        product.getKeywords(),
+        product.getChars()
+      );
+    productToSave.setId(id);
+    productRepository.save(productToSave);
+    product.setId(id);
+    return product;
+  }
+
+  @Transactional
+  @Override
+  public void deleteProductById(final long id) {
+    organisationProductRepository.deleteByProductId(id);
+    productRepository.deleteById(id);
+  }
+
+  @Transactional
+  @Override
+  public Discount changeDiscountToProduct(final long productId, final Discount discount) {
+    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Discount discountToSave = new
+      com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Discount(
+      discount.getDiscountSize(),
+      discount.getDurationOfDiscount()
+    );
+    discountRepository.save(discountToSave);
+    ProductDiscount productDiscount = new ProductDiscount(
+      productId, discountRepository.findTopByOrderByIdDesc().getId());
+    productDiscountRepository.save(productDiscount);
+
+    return new Discount(
+      discountRepository.findTopByOrderByIdDesc().getId(),
+      discountToSave.getDiscountSize(),
+      discountToSave.getDuration()
+    );
+  }
+
+  @Override
+  public List<Product> getPurchasedProducts(final long userId) {
+    List<com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product> products
+      = productRepository.findAllPurchasedProducts(userId);
+    List<Product> productList = new ArrayList<>();
+    for (
+      com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product product : products
+    ) {
+      productList.add(new Product(
+        product.getId(),
+        product.getProductName(),
+        product.getDescription(),
+        product.getOrganisationName(),
+        product.getPrice(),
+        product.getQuantity(),
+        product.getKeywords(),
+        product.getChars()
+      ));
+    }
+    return productList;
+  }
+
+  @Override
+  public Review addReview(final Review review) {
+    ProductReview reviewToSave =
+      new ProductReview(
+        review.getUserId(),
+        review.getProductId(),
+        review.getReviewText(),
+        review.getRating()
+      );
+    productReviewsRepository.save(reviewToSave);
+    review.setId(productReviewsRepository.findTopByOrderByIdDesc().get().getId());
+    return review;
+  }
+
+  @Override
+  public Review updateProductAndReviewById(final Review review) {
+    ProductReview reviewToSave =
+      new ProductReview(
+        review.getUserId(),
+        review.getProductId(),
+        review.getReviewText(),
+        review.getRating()
+      );
+    reviewToSave.setId(review.getId());
+
+    if (productReviewsRepository.findById(reviewToSave.getId()).isPresent()) {
+      productReviewsRepository.save(reviewToSave);
+      return review;
+    } else {
+      throw new RuntimeException("нельзя менять несуществующие ревью");
+    }
+
+  }
+
+  @Override
+  public Review getReviewById(final long reviewId) {
+    ProductReview review =
+      productReviewsRepository.getReferenceById(reviewId);
+    return new Review(
+      review.getId(),
+      review.getUserId(),
+      review.getProductId(),
+      review.getReviewText(),
+      review.getRating()
+    );
+  }
+
+  @Override
+  public void deleteReviewById(final long id, final long reviewId) {
+    productReviewsRepository.deleteById(reviewId);
+  }
+
+  private static com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product persistantProductFromDomain(
+    final Product product) {
+    return new com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product(
+      product.getName(),
+      product.getDescription(),
+      product.getOrganisationName(),
+      product.getPrice(),
+      product.getQuantity(),
+      product.getKeywords(),
+      product.getChars()
+    );
+  }
+}

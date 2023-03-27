@@ -1,6 +1,6 @@
 package com.muz1kash1.webmarkettesttask.infrastructure.service;
 
-import com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository.IOrganisationRepo;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.IOrganisationRepo;
 import com.muz1kash1.webmarkettesttask.model.domain.Organisation;
 import com.muz1kash1.webmarkettesttask.model.dto.OrganisationDto;
 import com.muz1kash1.webmarkettesttask.model.dto.SignupOrganisationDto;

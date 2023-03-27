@@ -1,6 +1,6 @@
 package com.muz1kash1.webmarkettesttask.infrastructure.service;
 
-import com.muz1kash1.webmarkettesttask.infrastructure.persistent.repository.IPurchaseRepo;
+import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.IPurchaseRepo;
 import com.muz1kash1.webmarkettesttask.model.domain.Purchase;
 import com.muz1kash1.webmarkettesttask.model.dto.MakePurchaseDto;
 import com.muz1kash1.webmarkettesttask.model.dto.PurchaseDto;
