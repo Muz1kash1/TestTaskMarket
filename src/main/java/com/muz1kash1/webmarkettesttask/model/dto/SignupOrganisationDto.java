@@ -9,5 +9,4 @@ public class SignupOrganisationDto {
   private final String organisationName;
   private final String organisationDescription;
   private final long logotypeId;
-
 }

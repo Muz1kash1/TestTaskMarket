@@ -18,7 +18,7 @@ create table users
     password text      not null,
     balance  numeric   not null check (balance >= 0) default (0),
     enabled  bool      not null                      default (true),
-    roles    text    not null default ('USER'),
+    roles    text      not null                      default ('USER'),
     primary key (id)
 );
 create table discounts
@@ -92,6 +92,7 @@ create table organisation_products
     id              bigserial not null unique,
     organisation_id bigserial not null,
     product_id      bigserial not null,
+    enabled         boolean   not null default false,
     foreign key (organisation_id) references organisations (id),
     foreign key (product_id) references products (id),
     primary key (id)

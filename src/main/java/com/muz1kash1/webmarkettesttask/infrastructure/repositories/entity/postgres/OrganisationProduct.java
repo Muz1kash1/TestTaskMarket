@@ -23,11 +23,15 @@ public class OrganisationProduct {
   @Column(name = "product_id")
   private long productId;
 
+  @Column(name = "enabled")
+  private boolean enabled;
+
   public OrganisationProduct() {
   }
 
-  public OrganisationProduct(long organisationId, long productId) {
+  public OrganisationProduct(long organisationId, long productId, boolean enabled) {
     this.organisationId = organisationId;
     this.productId = productId;
+    this.enabled = enabled;
   }
 }

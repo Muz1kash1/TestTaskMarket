@@ -91,10 +91,11 @@
             <artifactId>java-jwt</artifactId>
             <version>4.2.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.googlejavaformat/google-java-format -->
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
+            <groupId>com.google.googlejavaformat</groupId>
+            <artifactId>google-java-format</artifactId>
+            <version>1.16.0</version>
         </dependency>
     </dependencies>
 

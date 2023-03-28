@@ -4,12 +4,12 @@ import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.IP
 import com.muz1kash1.webmarkettesttask.model.domain.Purchase;
 import com.muz1kash1.webmarkettesttask.model.dto.MakePurchaseDto;
 import com.muz1kash1.webmarkettesttask.model.dto.PurchaseDto;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
-import java.util.List;
 
 @AllArgsConstructor
 @Service
@@ -21,44 +21,37 @@ public class PurchaseService {
   public PurchaseDto makePurchase(final MakePurchaseDto makePurchaseDto, String name) {
     Purchase purchase = purchaseRepository.addPurchase(makePurchaseDto, name);
     return new PurchaseDto(
-      purchase.getId(),
-      purchase.getUserId(),
-      purchase.getProductId(),
-      purchase.isRefunded(),
-      purchase.getPrice(),
-      purchase.getPurchaseDate()
-    );
+        purchase.getId(),
+        purchase.getUserId(),
+        purchase.getProductId(),
+        purchase.isRefunded(),
+        purchase.getPrice(),
+        purchase.getPurchaseDate());
   }
-
 
   public PurchaseDto getPurchase(final long id) {
     Purchase purchase = purchaseRepository.getPurchaseById(id);
     return new PurchaseDto(
-      purchase.getId(),
-      purchase.getUserId(),
-      purchase.getProductId(),
-      purchase.isRefunded(),
-      purchase.getPrice(),
-      purchase.getPurchaseDate()
-    );
+        purchase.getId(),
+        purchase.getUserId(),
+        purchase.getProductId(),
+        purchase.isRefunded(),
+        purchase.getPrice(),
+        purchase.getPurchaseDate());
   }
 
   public List<PurchaseDto> getPurchasesOfUser(final long userId) {
     List<Purchase> purchases = purchaseRepository.getPurchasesOfUser(userId);
     List<PurchaseDto> purchaseDtos = new ArrayList<>();
-    for (
-      Purchase purchase : purchases
-    ) {
+    for (Purchase purchase : purchases) {
       purchaseDtos.add(
-        new PurchaseDto(
-          purchase.getId(),
-          purchase.getUserId(),
-          purchase.getProductId(),
-          purchase.isRefunded(),
-          purchase.getPrice(),
-          purchase.getPurchaseDate()
-        )
-      );
+          new PurchaseDto(
+              purchase.getId(),
+              purchase.getUserId(),
+              purchase.getProductId(),
+              purchase.isRefunded(),
+              purchase.getPrice(),
+              purchase.getPurchaseDate()));
     }
     return purchaseDtos;
   }
@@ -66,31 +59,26 @@ public class PurchaseService {
   public PurchaseDto refundPurchase(final long id) {
     Purchase purchase = purchaseRepository.refundPurchase(id);
     return new PurchaseDto(
-      purchase.getId(),
-      purchase.getUserId(),
-      purchase.getProductId(),
-      purchase.isRefunded(),
-      purchase.getPrice(),
-      purchase.getPurchaseDate()
-    );
+        purchase.getId(),
+        purchase.getUserId(),
+        purchase.getProductId(),
+        purchase.isRefunded(),
+        purchase.getPrice(),
+        purchase.getPurchaseDate());
   }
 
   public List<PurchaseDto> getPurchasesOfUserByUsername(final String name) {
     List<Purchase> purchases = purchaseRepository.getPurchasesOfUserByUsername(name);
     List<PurchaseDto> purchaseDtos = new ArrayList<>();
-    for (
-      Purchase purchase : purchases
-    ) {
+    for (Purchase purchase : purchases) {
       purchaseDtos.add(
-        new PurchaseDto(
-          purchase.getId(),
-          purchase.getUserId(),
-          purchase.getProductId(),
-          purchase.isRefunded(),
-          purchase.getPrice(),
-          purchase.getPurchaseDate()
-        )
-      );
+          new PurchaseDto(
+              purchase.getId(),
+              purchase.getUserId(),
+              purchase.getProductId(),
+              purchase.isRefunded(),
+              purchase.getPrice(),
+              purchase.getPurchaseDate()));
     }
     return purchaseDtos;
   }

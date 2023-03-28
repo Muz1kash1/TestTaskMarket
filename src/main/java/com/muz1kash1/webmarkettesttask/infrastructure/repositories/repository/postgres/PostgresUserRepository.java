@@ -8,14 +8,14 @@ import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.po
 import com.muz1kash1.webmarkettesttask.model.domain.User;
 import com.muz1kash1.webmarkettesttask.model.dto.NotionDto;
 import com.muz1kash1.webmarkettesttask.model.dto.SignUpDto;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 @Repository
 @AllArgsConstructor
