@@ -13,11 +13,11 @@ import com.muz1kash1.webmarkettesttask.model.dto.DiscountDto;
 import com.muz1kash1.webmarkettesttask.model.dto.ProductDto;
 import com.muz1kash1.webmarkettesttask.model.dto.ReviewDto;
 import com.muz1kash1.webmarkettesttask.model.dto.UpdateProductDto;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
-import java.util.List;
 
 @AllArgsConstructor
 @Service
@@ -29,21 +29,17 @@ public class ProductService {
   public List<ProductDto> getAllProducts() {
     List<Product> products = productRepository.getAllProducts();
     List<ProductDto> productDtos = new ArrayList<>();
-    for (
-      Product product : products
-    ) {
+    for (Product product : products) {
       productDtos.add(
-        new ProductDto(
-          product.getId(),
-          product.getName(),
-          product.getDescription(),
-          product.getOrganisationName(),
-          product.getPrice(),
-          product.getQuantity(),
-          product.getKeywords(),
-          product.getChars()
-        )
-      );
+          new ProductDto(
+              product.getId(),
+              product.getName(),
+              product.getDescription(),
+              product.getOrganisationName(),
+              product.getPrice(),
+              product.getQuantity(),
+              product.getKeywords(),
+              product.getChars()));
     }
     return productDtos;
   }
@@ -51,41 +47,39 @@ public class ProductService {
   public ProductDto getProductById(final long id) {
     Product product = productRepository.getProductById(id);
     return new ProductDto(
-      product.getId(),
-      product.getName(),
-      product.getDescription(),
-      product.getOrganisationName(),
-      product.getPrice(),
-      product.getQuantity(),
-      product.getKeywords(),
-      product.getChars()
-    );
+        product.getId(),
+        product.getName(),
+        product.getDescription(),
+        product.getOrganisationName(),
+        product.getPrice(),
+        product.getQuantity(),
+        product.getKeywords(),
+        product.getChars());
   }
 
-  public ProductDto addNewProduct(final AddProductDto addProductDto) {
-    Product product = productRepository.addProduct(
-      new Product(
-        1,
-        addProductDto.getName(),
-        addProductDto.getDescription(),
-        addProductDto.getOrganisationName(),
-        addProductDto.getPrice(),
-        addProductDto.getQuantity(),
-        addProductDto.getKeywords(),
-        addProductDto.getChars()
-      ),
-      addProductDto.getOrganisationId()
-    );
+  public ProductDto addNewProduct(final AddProductDto addProductDto, String username) {
+    Product product =
+        productRepository.addProduct(
+            new Product(
+                1,
+                addProductDto.getName(),
+                addProductDto.getDescription(),
+                addProductDto.getOrganisationName(),
+                addProductDto.getPrice(),
+                addProductDto.getQuantity(),
+                addProductDto.getKeywords(),
+                addProductDto.getChars()),
+            addProductDto.getOrganisationId(),
+            username);
     return new ProductDto(
-      product.getId(),
-      product.getName(),
-      product.getDescription(),
-      product.getOrganisationName(),
-      product.getPrice(),
-      product.getQuantity(),
-      product.getKeywords(),
-      product.getChars()
-    );
+        product.getId(),
+        product.getName(),
+        product.getDescription(),
+        product.getOrganisationName(),
+        product.getPrice(),
+        product.getQuantity(),
+        product.getKeywords(),
+        product.getChars());
   }
 
   public ProductDto updateProduct(final long id, final UpdateProductDto updateProductDto) {
@@ -100,73 +94,72 @@ public class ProductService {
 
     Product updatedProduct = productRepository.updateProductById(id, product);
     return new ProductDto(
-      updatedProduct.getId(),
-      updateProductDto.getName(),
-      updatedProduct.getDescription(),
-      updatedProduct.getOrganisationName(),
-      updatedProduct.getPrice(),
-      updatedProduct.getQuantity(),
-      updatedProduct.getKeywords(),
-      updatedProduct.getChars()
-    );
+        updatedProduct.getId(),
+        updateProductDto.getName(),
+        updatedProduct.getDescription(),
+        updatedProduct.getOrganisationName(),
+        updatedProduct.getPrice(),
+        updatedProduct.getQuantity(),
+        updatedProduct.getKeywords(),
+        updatedProduct.getChars());
   }
 
   public void deleteProduct(final long id) {
     productRepository.deleteProductById(id);
   }
 
-  public DiscountDto changeDiscountToProduct(final long productId, final DiscountChangeDto discountChangeDto) {
-    Discount discount = new Discount(
-      1,
-      discountChangeDto.getDiscountSize(),
-      discountChangeDto.getDuration()
-    );
+  public DiscountDto changeDiscountToProduct(
+      final long productId, final DiscountChangeDto discountChangeDto) {
+    Discount discount =
+        new Discount(1, discountChangeDto.getDiscountSize(), discountChangeDto.getDuration());
     Discount discountToReturn = productRepository.changeDiscountToProduct(productId, discount);
     return new DiscountDto(
-      discountToReturn.getId(),
-      discountToReturn.getDiscountSize(),
-      discountToReturn.getDurationOfDiscount()
-    );
+        discountToReturn.getId(),
+        discountToReturn.getDiscountSize(),
+        discountToReturn.getDurationOfDiscount());
   }
 
-  public ReviewDto addNewReviewForPurchasedProduct(final long id,
-                                                   final AddReviewDto addReviewDto,
-                                                   String username) {
+  public ReviewDto addNewReviewForPurchasedProduct(
+      final long id, final AddReviewDto addReviewDto, String username) {
     com.muz1kash1.webmarkettesttask.model.domain.Review review;
 
     List<Product> products = productRepository.getPurchasedProducts(username);
     if (products.stream().anyMatch(o -> o.getId() == id)) {
 
-      review = productRepository.addReview(
-        new Review(productRepository.getIdOfLastReview(), userRepository.getUserByUsername(username).getId(), id, addReviewDto.getReviewText(), addReviewDto.getRating()));
+      review =
+          productRepository.addReview(
+              new Review(
+                  productRepository.getIdOfLastReview(),
+                  userRepository.getUserByUsername(username).getId(),
+                  id,
+                  addReviewDto.getReviewText(),
+                  addReviewDto.getRating()));
     } else {
       throw new RuntimeException("Нельзя оставлять отзыв не купив товар");
     }
     return new ReviewDto(
-      review.getId(),
-      review.getUserId(),
-      review.getProductId(),
-      review.getReviewText(),
-      review.getRating()
-    );
+        review.getId(),
+        review.getUserId(),
+        review.getProductId(),
+        review.getReviewText(),
+        review.getRating());
   }
 
-  public ReviewDto updateExistingReview(final long id, final long reviewId, final AddReviewDto addReviewDto, String username) {
+  public ReviewDto updateExistingReview(
+      final long id, final long reviewId, final AddReviewDto addReviewDto, String username) {
     User user = userRepository.getUserByUsername(username);
-    Review review
-      = new Review(
-      reviewId, user.getId(), id, addReviewDto.getReviewText(), addReviewDto.getRating()
-    );
+    Review review =
+        new Review(
+            reviewId, user.getId(), id, addReviewDto.getReviewText(), addReviewDto.getRating());
     Review reviewForCheck = productRepository.getReviewById(reviewId);
     if (reviewForCheck.getUserId() == user.getId()) {
       Review reviewToUpdate = productRepository.updateProductAndReviewById(review);
       return new ReviewDto(
-        reviewToUpdate.getId(),
-        reviewToUpdate.getUserId(),
-        reviewToUpdate.getProductId(),
-        reviewToUpdate.getReviewText(),
-        reviewToUpdate.getRating()
-      );
+          reviewToUpdate.getId(),
+          reviewToUpdate.getUserId(),
+          reviewToUpdate.getProductId(),
+          reviewToUpdate.getReviewText(),
+          reviewToUpdate.getRating());
     } else {
       throw new RuntimeException("Только тот кто оставил ревью может его менять");
     }
@@ -174,5 +167,18 @@ public class ProductService {
 
   public void deleteReviewById(final long id, final long reviewId) {
     productRepository.deleteReviewById(id, reviewId);
+  }
+
+  public ProductDto addProductToOrganisationProducts(long id) {
+    Product product = productRepository.enableOrganisationProduct(id);
+    return new ProductDto(
+        product.getId(),
+        product.getName(),
+        product.getDescription(),
+        product.getOrganisationName(),
+        product.getPrice(),
+        product.getQuantity(),
+        product.getKeywords(),
+        product.getChars());
   }
 }

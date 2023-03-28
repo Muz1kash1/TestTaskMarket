@@ -9,5 +9,4 @@ public interface OrganisationProductRepository extends JpaRepository<Organisatio
   void deleteByProductId(long id);
 
   OrganisationProduct findByProductId(long productId);
-
 }

@@ -6,12 +6,12 @@ import com.muz1kash1.webmarkettesttask.model.domain.User;
 import com.muz1kash1.webmarkettesttask.model.dto.NotionDto;
 import com.muz1kash1.webmarkettesttask.model.dto.SignUpDto;
 import com.muz1kash1.webmarkettesttask.model.dto.UserDto;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -21,14 +21,13 @@ public class UserService {
 
   private static UserDto getUserDtoFromDomain(final User user) {
     return new UserDto(
-      user.getId(),
-      user.getUsername(),
-      user.getMailAddress(),
-      user.getBalance(),
-      user.getPassword(),
-      user.isEnabled(),
-      user.getRoles()
-    );
+        user.getId(),
+        user.getUsername(),
+        user.getMailAddress(),
+        user.getBalance(),
+        user.getPassword(),
+        user.isEnabled(),
+        user.getRoles());
   }
 
   public UserDto signUp(SignUpDto signUpDto) {
@@ -36,7 +35,7 @@ public class UserService {
     return getUserDtoFromDomain(user);
   }
 
-  public UserDto adminSignUp(SignUpDto signUpDto){
+  public UserDto adminSignUp(SignUpDto signUpDto) {
     User user = userRepository.addAdmin(signUpDto);
     return getUserDtoFromDomain(user);
   }
@@ -72,11 +71,7 @@ public class UserService {
   public NotionDto sendNotionToUser(final long userid, final NotionDto notionDto) {
     Notion notion = userRepository.sendNotionToUser(userid, notionDto);
     return new NotionDto(
-      notion.getId(),
-      notion.getHeader(),
-      notion.getNotionDate(),
-      notion.getNotionText()
-    );
+        notion.getId(), notion.getHeader(), notion.getNotionDate(), notion.getNotionText());
   }
 
   public List<NotionDto> getUserNotions(final long userid) {
@@ -84,13 +79,11 @@ public class UserService {
     List<NotionDto> notionDtos = new ArrayList<>();
     for (Notion userNotion : userNotions) {
       notionDtos.add(
-        new NotionDto(
-          userNotion.getId(),
-          userNotion.getHeader(),
-          userNotion.getNotionDate(),
-          userNotion.getNotionText()
-        )
-      );
+          new NotionDto(
+              userNotion.getId(),
+              userNotion.getHeader(),
+              userNotion.getNotionDate(),
+              userNotion.getNotionText()));
     }
     return notionDtos;
   }
@@ -100,13 +93,11 @@ public class UserService {
     List<NotionDto> notionDtos = new ArrayList<>();
     for (Notion userNotion : userNotions) {
       notionDtos.add(
-        new NotionDto(
-          userNotion.getId(),
-          userNotion.getHeader(),
-          userNotion.getNotionDate(),
-          userNotion.getNotionText()
-        )
-      );
+          new NotionDto(
+              userNotion.getId(),
+              userNotion.getHeader(),
+              userNotion.getNotionDate(),
+              userNotion.getNotionText()));
     }
     return notionDtos;
   }

@@ -17,36 +17,35 @@ public class OrganisationService {
   public OrganisationDto disableOrganisationById(final long id) {
     Organisation organisation = organisationRepository.freezeOrganisationById(id);
     return new OrganisationDto(
-      organisation.getId(),
-      organisation.getOrganisationName(),
-      organisation.getOrganisationDescription(),
-      organisation.getLogotypeId(),
-      organisation.isEnabled(),
-      organisation.getOrganisationOwnerId()
-    );
+        organisation.getId(),
+        organisation.getOrganisationName(),
+        organisation.getOrganisationDescription(),
+        organisation.getLogotypeId(),
+        organisation.isEnabled(),
+        organisation.getOrganisationOwnerId());
   }
 
-  public OrganisationDto addOrganisationApplication(final SignupOrganisationDto signOrganisationDto, String username) {
-    Organisation organisation = organisationRepository.addOrganisationApplication(signOrganisationDto, username);
+  public OrganisationDto addOrganisationApplication(
+      final SignupOrganisationDto signOrganisationDto, String username) {
+    Organisation organisation =
+        organisationRepository.addOrganisationApplication(signOrganisationDto, username);
     return new OrganisationDto(
-      organisation.getId(),
-      organisation.getOrganisationName(),
-      organisation.getOrganisationDescription(),
-      organisation.getLogotypeId(),
-      organisation.isEnabled(),
-      organisation.getOrganisationOwnerId()
-    );
+        organisation.getId(),
+        organisation.getOrganisationName(),
+        organisation.getOrganisationDescription(),
+        organisation.getLogotypeId(),
+        organisation.isEnabled(),
+        organisation.getOrganisationOwnerId());
   }
 
   public OrganisationDto enableOrganisationById(final long id) {
     Organisation organisation = organisationRepository.unfreezeOrganisationById(id);
     return new OrganisationDto(
-      organisation.getId(),
-      organisation.getOrganisationName(),
-      organisation.getOrganisationDescription(),
-      organisation.getLogotypeId(),
-      organisation.isEnabled(),
-      organisation.getOrganisationOwnerId()
-    );
+        organisation.getId(),
+        organisation.getOrganisationName(),
+        organisation.getOrganisationDescription(),
+        organisation.getLogotypeId(),
+        organisation.isEnabled(),
+        organisation.getOrganisationOwnerId());
   }
 }

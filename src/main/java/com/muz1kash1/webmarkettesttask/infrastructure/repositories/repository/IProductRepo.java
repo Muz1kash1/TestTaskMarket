@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface IProductRepo {
   Product getProductById(long id);
-  Product addProduct(Product product, long organisationId);
+  Product addProduct(Product product, long organisationId, String username);
 
   List<Product> getAllProducts();
 
@@ -28,4 +28,6 @@ public interface IProductRepo {
   void deleteReviewById(long id, long reviewId);
 
   Long getIdOfLastReview();
+
+  Product enableOrganisationProduct(long id);
 }

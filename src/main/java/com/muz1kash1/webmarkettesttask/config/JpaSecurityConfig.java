@@ -37,50 +37,50 @@ public class JpaSecurityConfig {
   @Bean
   @Order(1)
   SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-      .csrf().disable()
-      .userDetailsService(jpaUserDetailsService)
-      .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
-      .sessionManagement(session -> session
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-      .headers(headers -> headers.frameOptions().sameOrigin())
-      .authorizeHttpRequests()
-      .requestMatchers(HttpMethod.POST, "/signup")
-      .permitAll()
-      .requestMatchers(HttpMethod.POST,"/signin")
-      .permitAll()
-      .requestMatchers(HttpMethod.POST,"/admin/signup")
-      .permitAll()
-      .requestMatchers(HttpMethod.DELETE, "/products/{id}")
-      .hasAuthority("SCOPE_ADMIN,USER")
-      .requestMatchers(HttpMethod.PUT, "/products/{id}/discounts/{discountId}")
-      .hasAuthority("SCOPE_ADMIN,USER")
-      .requestMatchers(HttpMethod.POST, "/products/{id}/discounts")
-      .hasAuthority("SCOPE_ADMIN,USER")
-      .requestMatchers(HttpMethod.GET, "/users/{userid}")
-      .hasAuthority("SCOPE_ADMIN,USER")
-      .requestMatchers(HttpMethod.DELETE, "/users/{userid}")
-      .hasAuthority("SCOPE_ADMIN,USER")
-      .requestMatchers(HttpMethod.PUT, "/users/{userid}/balance")
-      .hasAuthority("SCOPE_ADMIN,USER")
-      .requestMatchers(HttpMethod.PUT, "/users/{userid}/freeze")
-      .hasAuthority("SCOPE_ADMIN,USER")
-      .requestMatchers(HttpMethod.POST, "/users/{userid}/notifications")
-      .hasAuthority("SCOPE_ADMIN,USER")
-      .requestMatchers(HttpMethod.GET, "/users/{userid}/purchases")
-      .hasAuthority("SCOPE_ADMIN,USER")
-      .requestMatchers(HttpMethod.PUT, "/organisations/{id}/freeze")
-      .hasAuthority("SCOPE_ADMIN,USER")
-      .requestMatchers(HttpMethod.PUT, "/organisations/{id}/unfreeze")
-      .hasAuthority("SCOPE_ADMIN,USER")
-      .requestMatchers(HttpMethod.GET, "/purchases/{id}")
-      .hasAuthority("SCOPE_ADMIN,USER")
-      .anyRequest()
-      .authenticated()
-      .and()
-      .httpBasic(
-        Customizer.withDefaults()
-      );
+    http.csrf()
+        .disable()
+        .userDetailsService(jpaUserDetailsService)
+        .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .headers(headers -> headers.frameOptions().sameOrigin())
+        .authorizeHttpRequests()
+        .requestMatchers(HttpMethod.POST, "/signup")
+        .permitAll()
+        .requestMatchers(HttpMethod.POST, "/signin")
+        .permitAll()
+        .requestMatchers(HttpMethod.POST, "/admin/signup")
+        .permitAll()
+        .requestMatchers(HttpMethod.DELETE, "/products/{id}")
+        .hasAuthority("SCOPE_ADMIN,USER")
+        .requestMatchers(HttpMethod.PUT, "/products/{id}/enable")
+        .hasAuthority("SCOPE_ADMIN,USER")
+        .requestMatchers(HttpMethod.PUT, "/products/{id}/discounts/{discountId}")
+        .hasAuthority("SCOPE_ADMIN,USER")
+        .requestMatchers(HttpMethod.POST, "/products/{id}/discounts")
+        .hasAuthority("SCOPE_ADMIN,USER")
+        .requestMatchers(HttpMethod.GET, "/users/{userid}")
+        .hasAuthority("SCOPE_ADMIN,USER")
+        .requestMatchers(HttpMethod.DELETE, "/users/{userid}")
+        .hasAuthority("SCOPE_ADMIN,USER")
+        .requestMatchers(HttpMethod.PUT, "/users/{userid}/balance")
+        .hasAuthority("SCOPE_ADMIN,USER")
+        .requestMatchers(HttpMethod.PUT, "/users/{userid}/freeze")
+        .hasAuthority("SCOPE_ADMIN,USER")
+        .requestMatchers(HttpMethod.POST, "/users/{userid}/notifications")
+        .hasAuthority("SCOPE_ADMIN,USER")
+        .requestMatchers(HttpMethod.GET, "/users/{userid}/purchases")
+        .hasAuthority("SCOPE_ADMIN,USER")
+        .requestMatchers(HttpMethod.PUT, "/organisations/{id}/freeze")
+        .hasAuthority("SCOPE_ADMIN,USER")
+        .requestMatchers(HttpMethod.PUT, "/organisations/{id}/unfreeze")
+        .hasAuthority("SCOPE_ADMIN,USER")
+        .requestMatchers(HttpMethod.GET, "/purchases/{id}")
+        .hasAuthority("SCOPE_ADMIN,USER")
+        .anyRequest()
+        .authenticated()
+        .and()
+        .httpBasic(Customizer.withDefaults());
     return http.build();
   }
 
@@ -94,8 +94,12 @@ public class JpaSecurityConfig {
     return NimbusJwtDecoder.withPublicKey(rsaKeyProperties.publicKey()).build();
   }
 
-  @Bean JwtEncoder jwtEncoder() {
-    JWK jwk = new RSAKey.Builder(rsaKeyProperties.publicKey()).privateKey(rsaKeyProperties.privateKey()).build();
+  @Bean
+  JwtEncoder jwtEncoder() {
+    JWK jwk =
+        new RSAKey.Builder(rsaKeyProperties.publicKey())
+            .privateKey(rsaKeyProperties.privateKey())
+            .build();
     JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
     return new NimbusJwtEncoder(jwkSource);
   }

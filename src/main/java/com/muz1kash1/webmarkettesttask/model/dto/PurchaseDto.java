@@ -1,9 +1,9 @@
 package com.muz1kash1.webmarkettesttask.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Data
 @AllArgsConstructor

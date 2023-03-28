@@ -1,13 +1,13 @@
 package com.muz1kash1.webmarkettesttask.infrastructure.service.authentication.userdetails;
 
 import com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 @AllArgsConstructor
 public class SecurityUser implements UserDetails {
