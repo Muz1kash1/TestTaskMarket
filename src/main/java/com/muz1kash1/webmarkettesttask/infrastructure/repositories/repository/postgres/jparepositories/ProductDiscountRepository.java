@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductDiscountRepository extends JpaRepository<ProductDiscount, Long> {
   List<ProductDiscount> findByProductId(long productId);
+
+  void deleteProductDiscountByProductId(long id);
 }
