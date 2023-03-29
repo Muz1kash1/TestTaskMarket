@@ -165,8 +165,13 @@ public class ProductService {
     }
   }
 
-  public void deleteReviewById(final long id, final long reviewId) {
-    productRepository.deleteReviewById(id, reviewId);
+  public void deleteReviewById(final long id, final long reviewId, String username) {
+    User user = userRepository.getUserByUsername(username);
+    Review review = productRepository.getReviewById(reviewId);
+    if (review.getUserId() == user.getId()){
+      productRepository.deleteReviewById(id, reviewId);
+    }
+    else throw new RuntimeException("Удалять ревью может только тот кто его оставил");
   }
 
   public ProductDto addProductToOrganisationProducts(long id) {

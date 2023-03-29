@@ -92,8 +92,8 @@ public class ProductController {
   }
 
   @DeleteMapping("/products/{id}/reviews/{reviewId}")
-  public ResponseEntity<Void> deleteReview(@PathVariable long id, @PathVariable long reviewId) {
-    productService.deleteReviewById(id, reviewId);
+  public ResponseEntity<Void> deleteReview(@PathVariable long id, @PathVariable long reviewId, JwtAuthenticationToken principal) {
+    productService.deleteReviewById(id, reviewId, principal.getName());
     return ResponseEntity.noContent().build();
   }
 }

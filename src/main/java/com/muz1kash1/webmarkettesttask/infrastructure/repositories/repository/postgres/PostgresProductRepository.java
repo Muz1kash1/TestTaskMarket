@@ -122,6 +122,7 @@ public class PostgresProductRepository implements IProductRepo {
   @Transactional
   @Override
   public void deleteProductById(final long id) {
+    productDiscountRepository.deleteProductDiscountByProductId(id);
     organisationProductRepository.deleteByProductId(id);
     productRepository.deleteById(id);
   }
@@ -222,15 +223,14 @@ public class PostgresProductRepository implements IProductRepo {
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product product =
         productRepository.findProductById(id).get();
     return new Product(
-      product.getId(),
-      product.getOrganisationName(),
-      product.getDescription(),
-      product.getOrganisationName(),
-      product.getPrice(),
-      product.getQuantity(),
-      product.getKeywords(),
-      product.getChars()
-    );
+        product.getId(),
+        product.getOrganisationName(),
+        product.getDescription(),
+        product.getOrganisationName(),
+        product.getPrice(),
+        product.getQuantity(),
+        product.getKeywords(),
+        product.getChars());
   }
 
   private static com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product
