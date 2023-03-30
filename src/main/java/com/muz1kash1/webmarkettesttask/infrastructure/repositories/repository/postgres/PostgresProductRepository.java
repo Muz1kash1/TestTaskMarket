@@ -41,7 +41,9 @@ public class PostgresProductRepository implements IProductRepo {
     try {
 
       com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product product =
-          productRepository.findProductById(id).get();
+          productRepository
+              .findProductById(id)
+              .orElseThrow(() -> new RuntimeException("Продукта с id = " + id + " не найдено"));
       return new Product(
           product.getId(),
           product.getProductName(),
@@ -62,14 +64,21 @@ public class PostgresProductRepository implements IProductRepo {
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product
         productToSave = persistantProductFromDomain(product);
 
-    User user = userRepository.findUserByUsername(username).get();
+    User user =
+        userRepository
+            .findUserByUsername(username)
+            .orElseThrow(() -> new RuntimeException("Пользователь " + username + " не найден"));
     List<Organisation> organisations =
         organisationRepository.findAllByOrganisationOwnerId(user.getId());
     if (!organisations.isEmpty()) {
 
       if (organisations.stream().anyMatch(organisation -> organisation.getId() == organisationId)) {
         productRepository.save(productToSave);
-        product.setId(productRepository.findTopByOrderByIdDesc().get().getId());
+        product.setId(
+            productRepository
+                .findTopByOrderByIdDesc()
+                .orElseThrow(() -> new RuntimeException("В базе нет продуктов"))
+                .getId());
         organisationProductRepository.save(
             new OrganisationProduct(organisationId, product.getId(), false));
         return product;
@@ -84,21 +93,7 @@ public class PostgresProductRepository implements IProductRepo {
   public List<Product> getAllProducts() {
     List<com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product>
         products = productRepository.findAll();
-    List<Product> productList = new ArrayList<>();
-    for (com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product
-        product : products) {
-      productList.add(
-          new Product(
-              product.getId(),
-              product.getProductName(),
-              product.getDescription(),
-              product.getOrganisationName(),
-              product.getPrice(),
-              product.getQuantity(),
-              product.getKeywords(),
-              product.getChars()));
-    }
-    return productList;
+    return getProductToReturnList(products);
   }
 
   @Override
@@ -147,9 +142,19 @@ public class PostgresProductRepository implements IProductRepo {
 
   @Override
   public List<Product> getPurchasedProducts(final String username) {
-    User user = userRepository.findUserByUsername(username).get();
+    User user =
+        userRepository
+            .findUserByUsername(username)
+            .orElseThrow(() -> new RuntimeException("Пользователь " + username + " не найден"));
     List<com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product>
         products = productRepository.findAllPurchasedProducts(user.getId());
+    return getProductToReturnList(products);
+  }
+
+  private static List<Product> getProductToReturnList(
+      final List<
+              com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product>
+          products) {
     List<Product> productList = new ArrayList<>();
     for (com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product
         product : products) {
@@ -173,7 +178,11 @@ public class PostgresProductRepository implements IProductRepo {
         new ProductReview(
             review.getUserId(), review.getProductId(), review.getReviewText(), review.getRating());
     productReviewsRepository.save(reviewToSave);
-    review.setId(productReviewsRepository.findTopByOrderByIdDesc().get().getId());
+    review.setId(
+        productReviewsRepository
+            .findTopByOrderByIdDesc()
+            .orElseThrow(() -> new RuntimeException("В базе нет продуктов"))
+            .getId());
     return review;
   }
 
@@ -211,7 +220,10 @@ public class PostgresProductRepository implements IProductRepo {
   @Override
   public Long getIdOfLastReview() {
     if (productReviewsRepository.findTopByOrderByIdDesc().isPresent()) {
-      return productReviewsRepository.findTopByOrderByIdDesc().get().getId();
+      return productReviewsRepository
+          .findTopByOrderByIdDesc()
+          .orElseThrow(() -> new RuntimeException("В базе нет отзывов"))
+          .getId();
     } else return 1L;
   }
 
@@ -221,7 +233,9 @@ public class PostgresProductRepository implements IProductRepo {
     organisationProduct.setEnabled(true);
     organisationProductRepository.save(organisationProduct);
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product product =
-        productRepository.findProductById(id).get();
+        productRepository
+            .findProductById(id)
+            .orElseThrow(() -> new RuntimeException("Продукта с id = " + id + " нет в базе"));
     return new Product(
         product.getId(),
         product.getOrganisationName(),

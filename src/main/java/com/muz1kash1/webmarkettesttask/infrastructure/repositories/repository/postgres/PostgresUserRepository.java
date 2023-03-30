@@ -22,27 +22,27 @@ import org.springframework.transaction.annotation.Transactional;
 @ComponentScan("com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres")
 public class PostgresUserRepository implements IUserRepo {
   private final PasswordEncoder encoder;
-  private final com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres.jparepositories.UserRepository
-    userRepository;
+  private final com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.postgres
+          .jparepositories.UserRepository
+      userRepository;
   private final NotionsRepository notionsRepository;
   private final UserNotionsRepository userNotionsRepository;
 
   @Override
   public User getUserById(long id) {
 
-    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user = userRepository
-      .findUserById(id)
-      .get();
+    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
+        userRepository
+            .findUserById(id)
+            .orElseThrow(() -> new RuntimeException("Пользователя c id" + id + " нет в базе"));
     return new User(
-      user.getId(),
-      user.getUsername(),
-      user.getMail(),
-      user.getPassword(),
-      user.getBalance(),
-      user.isEnabled(),
-      user.getRoles()
-    );
-
+        user.getId(),
+        user.getUsername(),
+        user.getMail(),
+        user.getPassword(),
+        user.getBalance(),
+        user.isEnabled(),
+        user.getRoles());
   }
 
   @Override
@@ -52,152 +52,140 @@ public class PostgresUserRepository implements IUserRepo {
 
   @Override
   public User enableUser(long id) {
-    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user = userRepository
-      .findUserById(id)
-      .get();
+    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
+        userRepository
+            .findUserById(id)
+            .orElseThrow(() -> new RuntimeException("Пользователя c id" + id + " нет в базе"));
     user.setEnabled(true);
     userRepository.save(user);
     return new User(
-      user.getId(),
-      user.getUsername(),
-      user.getMail(),
-      user.getPassword(),
-      user.getBalance(),
-      user.isEnabled(),
-      user.getRoles()
-    );
+        user.getId(),
+        user.getUsername(),
+        user.getMail(),
+        user.getPassword(),
+        user.getBalance(),
+        user.isEnabled(),
+        user.getRoles());
   }
 
   @Override
   public User changeUserBalance(long id, BigDecimal value) {
-    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user = userRepository
-      .findUserById(id)
-      .get();
+    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
+        userRepository
+            .findUserById(id)
+            .orElseThrow(() -> new RuntimeException("Пользователя c id" + id + " нет в базе"));
     user.setBalance(user.getBalance().add(value));
     userRepository.save(user);
     return new User(
-      user.getId(),
-      user.getUsername(),
-      user.getMail(),
-      user.getPassword(),
-      user.getBalance(),
-      user.isEnabled(),
-      user.getRoles()
-    );
+        user.getId(),
+        user.getUsername(),
+        user.getMail(),
+        user.getPassword(),
+        user.getBalance(),
+        user.isEnabled(),
+        user.getRoles());
   }
 
   @Transactional
   @Override
-  public com.muz1kash1.webmarkettesttask.model.domain.Notion sendNotionToUser(final long userid,
-                                                                              final NotionDto notionDto) {
-    Notion
-      notion = new Notion(
-      notionDto.getHeader(),
-      notionDto.getNotionDate(),
-      notionDto.getNotionText()
-    );
+  public com.muz1kash1.webmarkettesttask.model.domain.Notion sendNotionToUser(
+      final long userid, final NotionDto notionDto) {
+    Notion notion =
+        new Notion(notionDto.getHeader(), notionDto.getNotionDate(), notionDto.getNotionText());
     notionsRepository.save(notion);
-    userNotionsRepository.save(new UserNotions(
-      userid,
-      notion.getId()
-    ));
+    userNotionsRepository.save(new UserNotions(userid, notion.getId()));
     return new com.muz1kash1.webmarkettesttask.model.domain.Notion(
-      notion.getId(),
-      notion.getHeader(),
-      notion.getNotionDate(),
-      notion.getNotionText()
-    );
+        notion.getId(), notion.getHeader(), notion.getNotionDate(), notion.getNotionText());
   }
 
   @Override
   public User addUser(SignUpDto signUpDto) {
-    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user = new
-      com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User(
-      signUpDto.getUsername(),
-      signUpDto.getMail(),
-      encoder.encode(signUpDto.getPassword()),
-      BigDecimal.ZERO,
-      true,
-      "USER"
-    );
+    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
+        new com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User(
+            signUpDto.getUsername(),
+            signUpDto.getMail(),
+            encoder.encode(signUpDto.getPassword()),
+            BigDecimal.ZERO,
+            true,
+            "USER");
     userRepository.save(user);
-    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User userToReturn = userRepository
-      .findUserByUsername(user.getUsername())
-      .get();
+    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User userToReturn =
+        userRepository
+            .findUserByUsername(user.getUsername())
+            .orElseThrow(
+                () -> new RuntimeException("Пользователя " + user.getUsername() + " нет в базе"));
     return new User(
-      userToReturn.getId(),
-      userToReturn.getUsername(),
-      userToReturn.getMail(),
-      userToReturn.getPassword(),
-      userToReturn.getBalance(),
-      userToReturn.isEnabled(),
-      user.getRoles()
-    );
+        userToReturn.getId(),
+        userToReturn.getUsername(),
+        userToReturn.getMail(),
+        userToReturn.getPassword(),
+        userToReturn.getBalance(),
+        userToReturn.isEnabled(),
+        user.getRoles());
   }
 
   @Override
   public User addAdmin(SignUpDto signUpDto) {
-    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user = new
-      com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User(
-      signUpDto.getUsername(),
-      signUpDto.getMail(),
-      encoder.encode(signUpDto.getPassword()),
-      BigDecimal.ZERO,
-      true,
-      "USER,ADMIN"
-    );
+    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
+        new com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User(
+            signUpDto.getUsername(),
+            signUpDto.getMail(),
+            encoder.encode(signUpDto.getPassword()),
+            BigDecimal.ZERO,
+            true,
+            "USER,ADMIN");
     userRepository.save(user);
-    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User userToReturn = userRepository
-      .findUserByUsername(user.getUsername())
-      .get();
+    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User userToReturn =
+        userRepository
+            .findUserByUsername(user.getUsername())
+            .orElseThrow(
+                () -> new RuntimeException("Пользователя " + user.getUsername() + " нет в базе"));
     return new User(
-      userToReturn.getId(),
-      userToReturn.getUsername(),
-      userToReturn.getMail(),
-      userToReturn.getPassword(),
-      userToReturn.getBalance(),
-      userToReturn.isEnabled(),
-      user.getRoles()
-    );
+        userToReturn.getId(),
+        userToReturn.getUsername(),
+        userToReturn.getMail(),
+        userToReturn.getPassword(),
+        userToReturn.getBalance(),
+        userToReturn.isEnabled(),
+        user.getRoles());
   }
 
   @Override
   public User getUserByUsername(String username) {
-    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user = userRepository
-      .findUserByUsername(username)
-      .get();
+    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
+        userRepository
+            .findUserByUsername(username)
+            .orElseThrow(() -> new RuntimeException("Пользователя " + username + " нет в базе"));
     return new User(
-      user.getId(),
-      user.getUsername(),
-      user.getMail(),
-      user.getPassword(),
-      user.getBalance(),
-      user.isEnabled(),
-      user.getRoles()
-    );
+        user.getId(),
+        user.getUsername(),
+        user.getMail(),
+        user.getPassword(),
+        user.getBalance(),
+        user.isEnabled(),
+        user.getRoles());
   }
 
   @Override
-  public List<com.muz1kash1.webmarkettesttask.model.domain.Notion> getNotionsOfUser(final long userid) {
+  public List<com.muz1kash1.webmarkettesttask.model.domain.Notion> getNotionsOfUser(
+      final long userid) {
     List<Long> notionIds = userNotionsRepository.getIdOfNotionsOfUser(userid);
 
     List<Notion> notions = new ArrayList<>();
-    for (
-      Long notionId : notionIds
-    ) {
+    for (Long notionId : notionIds) {
       notions.add(notionsRepository.getReferenceById(notionId));
     }
 
+    return getNotionToReturnList(notions);
+  }
+
+  private static List<com.muz1kash1.webmarkettesttask.model.domain.Notion> getNotionToReturnList(
+      final List<Notion> notions) {
     List<com.muz1kash1.webmarkettesttask.model.domain.Notion> notionList = new ArrayList<>();
-    for (
-      Notion notion : notions
-    ) {
-      notionList.add(new com.muz1kash1.webmarkettesttask.model.domain.Notion(
-        notion.getId(),
-        notion.getHeader(),
-        notion.getNotionDate(),
-        notion.getNotionText()
-      ));
+    for (Notion notion : notions) {
+      notionList.add(
+          new com.muz1kash1.webmarkettesttask.model.domain.Notion(
+              notion.getId(), notion.getHeader(), notion.getNotionDate(), notion.getNotionText()));
     }
     return notionList;
   }
@@ -205,44 +193,32 @@ public class PostgresUserRepository implements IUserRepo {
   @Override
   public User loadUserByUsername(final String username) {
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
-      userRepository
-        .findUserByUsername(username).
-        get();
+        userRepository
+            .findUserByUsername(username)
+            .orElseThrow(() -> new RuntimeException("Пользователя " + username + " нет в базе"));
     return new User(
-      user.getId(),
-      user.getUsername(),
-      user.getMail(),
-      user.getPassword(),
-      user.getBalance(),
-      user.isEnabled(),
-      user.getRoles()
-    );
+        user.getId(),
+        user.getUsername(),
+        user.getMail(),
+        user.getPassword(),
+        user.getBalance(),
+        user.isEnabled(),
+        user.getRoles());
   }
 
   @Override
-  public List<com.muz1kash1.webmarkettesttask.model.domain.Notion> getNotionsOfAuthorizedUser(final String name) {
-    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user = userRepository
-      .findUserByUsername(name)
-      .get();
+  public List<com.muz1kash1.webmarkettesttask.model.domain.Notion> getNotionsOfAuthorizedUser(
+      final String name) {
+    com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
+        userRepository
+            .findUserByUsername(name)
+            .orElseThrow(() -> new RuntimeException("Пользователя " + name + " нет в базе"));
     List<UserNotions> userNotions = userNotionsRepository.findAllByUserId(user.getId());
     List<Notion> notions = new ArrayList<>();
-    for (
-      UserNotions userNotion: userNotions
-    ) {
+    for (UserNotions userNotion : userNotions) {
       notions.add(notionsRepository.getReferenceById(userNotion.getNotionId()));
     }
 
-    List<com.muz1kash1.webmarkettesttask.model.domain.Notion> notionList = new ArrayList<>();
-    for (
-      Notion notion : notions
-    ) {
-      notionList.add(new com.muz1kash1.webmarkettesttask.model.domain.Notion(
-        notion.getId(),
-        notion.getHeader(),
-        notion.getNotionDate(),
-        notion.getNotionText()
-      ));
-    }
-    return notionList;
+    return getNotionToReturnList(notions);
   }
 }
