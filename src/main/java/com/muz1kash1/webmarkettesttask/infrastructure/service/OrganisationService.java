@@ -5,6 +5,7 @@ import com.muz1kash1.webmarkettesttask.model.domain.Organisation;
 import com.muz1kash1.webmarkettesttask.model.dto.OrganisationDto;
 import com.muz1kash1.webmarkettesttask.model.dto.SignupOrganisationDto;
 import lombok.AllArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +27,7 @@ public class OrganisationService {
   }
 
   public OrganisationDto addOrganisationApplication(
-      final SignupOrganisationDto signOrganisationDto, String username) {
+      final SignupOrganisationDto signOrganisationDto, String username)throws ChangeSetPersister.NotFoundException {
     Organisation organisation =
         organisationRepository.addOrganisationApplication(signOrganisationDto, username);
     return new OrganisationDto(

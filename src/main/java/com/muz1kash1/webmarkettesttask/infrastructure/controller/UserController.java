@@ -9,6 +9,7 @@ import java.util.List;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -28,13 +29,15 @@ public class UserController {
 
   @PutMapping("/users/{userid}/balance")
   public ResponseEntity<UserDto> topUpUserBalance(
-      @PathVariable long userid, @RequestBody double value) {
+      @PathVariable long userid, @RequestBody double value)
+      throws ChangeSetPersister.NotFoundException {
     UserDto user = userService.changeUserBalance(userid, BigDecimal.valueOf(value));
     return ResponseEntity.ok().body(user);
   }
 
   @GetMapping("/users/{userid}")
-  public ResponseEntity<UserDto> getUserById(@PathVariable long userid) {
+  public ResponseEntity<UserDto> getUserById(@PathVariable long userid)
+      throws ChangeSetPersister.NotFoundException {
     UserDto userDto = userService.getUserById(userid);
     return ResponseEntity.ok().body(userDto);
   }
@@ -47,7 +50,8 @@ public class UserController {
   }
 
   @PutMapping("/users/{userid}/freeze")
-  public ResponseEntity<UserDto> freezeUser(@PathVariable long userid) {
+  public ResponseEntity<UserDto> freezeUser(@PathVariable long userid)
+      throws ChangeSetPersister.NotFoundException {
     UserDto userDto = userService.freezeUserById(userid);
     return ResponseEntity.ok().body(userDto);
   }
@@ -57,11 +61,7 @@ public class UserController {
       @PathVariable long userid, @RequestBody @Valid NotionDto notion) {
     NotionDto notionDto = userService.sendNotionToUser(userid, notion);
     return ResponseEntity.created(
-            URI.create(
-                "/users"
-                    + String.valueOf(userid)
-                    + "/notifications/"
-                    + String.valueOf(notionDto.getId())))
+            URI.create("/users" + userid + "/notifications/" + notionDto.getId()))
         .body(notionDto);
   }
 
@@ -73,13 +73,14 @@ public class UserController {
 
   @GetMapping("/notifications")
   public ResponseEntity<List<NotionDto>> getNotificationsForAuthorized(
-      JwtAuthenticationToken principal) {
+      JwtAuthenticationToken principal) throws ChangeSetPersister.NotFoundException {
     List<NotionDto> notionDtos = userService.getAuthorizedUserNotions(principal.getName());
     return ResponseEntity.ok().body(notionDtos);
   }
 
   @GetMapping("/profile")
-  public ResponseEntity<UserDto> getAuthorizedUserProfile(JwtAuthenticationToken principal) {
+  public ResponseEntity<UserDto> getAuthorizedUserProfile(JwtAuthenticationToken principal)
+      throws ChangeSetPersister.NotFoundException {
     UserDto userDto = userService.getUserByUsername(principal.getName());
     return ResponseEntity.ok().body(userDto);
   }

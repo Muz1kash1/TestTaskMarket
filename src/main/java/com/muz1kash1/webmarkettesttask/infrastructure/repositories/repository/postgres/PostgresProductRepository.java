@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,13 +38,13 @@ public class PostgresProductRepository implements IProductRepo {
   private final OrganisationRepository organisationRepository;
 
   @Override
-  public Product getProductById(long id) {
+  public Product getProductById(long id) throws ChangeSetPersister.NotFoundException {
     try {
 
       com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product product =
           productRepository
               .findProductById(id)
-              .orElseThrow(() -> new RuntimeException("Продукта с id = " + id + " не найдено"));
+              .orElseThrow(ChangeSetPersister.NotFoundException::new);
       return new Product(
           product.getId(),
           product.getProductName(),
@@ -60,14 +61,15 @@ public class PostgresProductRepository implements IProductRepo {
 
   @Override
   @Transactional
-  public Product addProduct(Product product, long organisationId, String username) {
+  public Product addProduct(Product product, long organisationId, String username)
+      throws ChangeSetPersister.NotFoundException {
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product
         productToSave = persistantProductFromDomain(product);
 
     User user =
         userRepository
             .findUserByUsername(username)
-            .orElseThrow(() -> new RuntimeException("Пользователь " + username + " не найден"));
+            .orElseThrow(ChangeSetPersister.NotFoundException::new);
     List<Organisation> organisations =
         organisationRepository.findAllByOrganisationOwnerId(user.getId());
     if (!organisations.isEmpty()) {
@@ -77,16 +79,13 @@ public class PostgresProductRepository implements IProductRepo {
         product.setId(
             productRepository
                 .findTopByOrderByIdDesc()
-                .orElseThrow(() -> new RuntimeException("В базе нет продуктов"))
+                .orElseThrow(ChangeSetPersister.NotFoundException::new)
                 .getId());
         organisationProductRepository.save(
             new OrganisationProduct(organisationId, product.getId(), false));
         return product;
-      } else
-        throw new RuntimeException(
-            "У этого пользователя нет доступа к добалению товаров от имени этой организации: "
-                + organisationId);
-    } else throw new RuntimeException("У текущего пользователя нет открытых организаций");
+      } else throw new RuntimeException("Это действие разрешено только создателю организации");
+    } else throw new ChangeSetPersister.NotFoundException();
   }
 
   @Override
@@ -119,7 +118,6 @@ public class PostgresProductRepository implements IProductRepo {
   public void deleteProductById(final long id) {
     productDiscountRepository.deleteProductDiscountByProductId(id);
     organisationProductRepository.deleteByProductId(id);
-    productRepository.deleteById(id);
   }
 
   @Transactional
@@ -141,11 +139,11 @@ public class PostgresProductRepository implements IProductRepo {
   }
 
   @Override
-  public List<Product> getPurchasedProducts(final String username) {
+  public List<Product> getPurchasedProducts(final String username)throws ChangeSetPersister.NotFoundException {
     User user =
         userRepository
             .findUserByUsername(username)
-            .orElseThrow(() -> new RuntimeException("Пользователь " + username + " не найден"));
+            .orElseThrow(ChangeSetPersister.NotFoundException::new);
     List<com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product>
         products = productRepository.findAllPurchasedProducts(user.getId());
     return getProductToReturnList(products);
@@ -173,7 +171,7 @@ public class PostgresProductRepository implements IProductRepo {
   }
 
   @Override
-  public Review addReview(final Review review) {
+  public Review addReview(final Review review)throws ChangeSetPersister.NotFoundException {
     ProductReview reviewToSave =
         new ProductReview(
             review.getUserId(), review.getProductId(), review.getReviewText(), review.getRating());
@@ -181,13 +179,13 @@ public class PostgresProductRepository implements IProductRepo {
     review.setId(
         productReviewsRepository
             .findTopByOrderByIdDesc()
-            .orElseThrow(() -> new RuntimeException("В базе нет продуктов"))
+            .orElseThrow(ChangeSetPersister.NotFoundException::new)
             .getId());
     return review;
   }
 
   @Override
-  public Review updateProductAndReviewById(final Review review) {
+  public Review updateProductAndReviewById(final Review review)throws ChangeSetPersister.NotFoundException {
     ProductReview reviewToSave =
         new ProductReview(
             review.getUserId(), review.getProductId(), review.getReviewText(), review.getRating());
@@ -197,7 +195,7 @@ public class PostgresProductRepository implements IProductRepo {
       productReviewsRepository.save(reviewToSave);
       return review;
     } else {
-      throw new RuntimeException("нельзя менять несуществующие ревью");
+      throw new ChangeSetPersister.NotFoundException();
     }
   }
 
@@ -218,24 +216,24 @@ public class PostgresProductRepository implements IProductRepo {
   }
 
   @Override
-  public Long getIdOfLastReview() {
+  public Long getIdOfLastReview()throws ChangeSetPersister.NotFoundException {
     if (productReviewsRepository.findTopByOrderByIdDesc().isPresent()) {
       return productReviewsRepository
           .findTopByOrderByIdDesc()
-          .orElseThrow(() -> new RuntimeException("В базе нет отзывов"))
+          .orElseThrow(ChangeSetPersister.NotFoundException::new)
           .getId();
     } else return 1L;
   }
 
   @Override
-  public Product enableOrganisationProduct(final long id) {
+  public Product enableOrganisationProduct(final long id)throws ChangeSetPersister.NotFoundException {
     OrganisationProduct organisationProduct = organisationProductRepository.findByProductId(id);
     organisationProduct.setEnabled(true);
     organisationProductRepository.save(organisationProduct);
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Product product =
         productRepository
             .findProductById(id)
-            .orElseThrow(() -> new RuntimeException("Продукта с id = " + id + " нет в базе"));
+            .orElseThrow(ChangeSetPersister.NotFoundException::new);
     return new Product(
         product.getId(),
         product.getOrganisationName(),

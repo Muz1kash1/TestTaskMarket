@@ -22,6 +22,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,14 +43,12 @@ public class PostgresPurchaseRepository implements IPurchaseRepo {
 
   @Transactional
   @Override
-  public Purchase addPurchase(final MakePurchaseDto makePurchaseDto, String username) {
+  public Purchase addPurchase(final MakePurchaseDto makePurchaseDto, String username)
+      throws ChangeSetPersister.NotFoundException {
     Product product =
         productRepository
             .findProductById(makePurchaseDto.getProductId())
-            .orElseThrow(
-                () ->
-                    new RuntimeException(
-                        "Продукта с id = " + makePurchaseDto.getProductId() + " нет в базе"));
+            .orElseThrow(ChangeSetPersister.NotFoundException::new);
     List<ProductDiscount> productDiscounts =
         productDiscountRepository.findByProductId(product.getId());
     Discount discount =
@@ -58,7 +57,7 @@ public class PostgresPurchaseRepository implements IPurchaseRepo {
     User user =
         userRepository
             .findUserByUsername(username)
-            .orElseThrow(() -> new RuntimeException("Пользователя " + username + " нет в базе"));
+            .orElseThrow(ChangeSetPersister.NotFoundException::new);
 
     OrganisationProduct organisationProduct =
         organisationProductRepository.findByProductId(product.getId());
@@ -100,7 +99,7 @@ public class PostgresPurchaseRepository implements IPurchaseRepo {
     purchase =
         purchaseRepository
             .findTopByOrderByIdDesc()
-            .orElseThrow(() -> new RuntimeException("В базе нет покупок"));
+            .orElseThrow(ChangeSetPersister.NotFoundException::new);
     return new Purchase(
         purchase.getId(),
         purchase.getUserId(),
@@ -149,15 +148,15 @@ public class PostgresPurchaseRepository implements IPurchaseRepo {
           purchase.getPrice(),
           purchase.getPurchaseDate());
     }
-    throw new RuntimeException("Вернуть можно только в течение суток");
+    throw new RuntimeException("Нельзя вернуть покупку познее чем через сутки");
   }
 
   @Override
-  public List<Purchase> getPurchasesOfUserByUsername(final String name) {
+  public List<Purchase> getPurchasesOfUserByUsername(final String name)throws ChangeSetPersister.NotFoundException {
     User user =
         userRepository
             .findUserByUsername(name)
-            .orElseThrow(() -> new RuntimeException("Пользователя " + name + " нет в базе"));
+            .orElseThrow(ChangeSetPersister.NotFoundException::new);
     List<com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.Purchase>
         purchases = purchaseRepository.findAllByUserId(user.getId());
     return getPurchasesToReturn(purchases);

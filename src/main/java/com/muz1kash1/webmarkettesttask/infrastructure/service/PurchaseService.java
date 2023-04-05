@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PurchaseService {
   private final IPurchaseRepo purchaseRepository;
 
-  public PurchaseDto makePurchase(final MakePurchaseDto makePurchaseDto, String name) {
+  public PurchaseDto makePurchase(final MakePurchaseDto makePurchaseDto, String name)throws ChangeSetPersister.NotFoundException {
     Purchase purchase = purchaseRepository.addPurchase(makePurchaseDto, name);
     return new PurchaseDto(
         purchase.getId(),
@@ -67,7 +68,7 @@ public class PurchaseService {
         purchase.getPurchaseDate());
   }
 
-  public List<PurchaseDto> getPurchasesOfUserByUsername(final String name) {
+  public List<PurchaseDto> getPurchasesOfUserByUsername(final String name)throws ChangeSetPersister.NotFoundException {
     List<Purchase> purchases = purchaseRepository.getPurchasesOfUserByUsername(name);
     List<PurchaseDto> purchaseDtos = new ArrayList<>();
     for (Purchase purchase : purchases) {

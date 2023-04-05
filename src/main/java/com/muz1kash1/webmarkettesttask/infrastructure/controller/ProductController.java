@@ -11,6 +11,7 @@ import com.muz1kash1.webmarkettesttask.model.dto.UpdateProductDto;
 import java.net.URI;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,26 +35,26 @@ public class ProductController {
 
   @PostMapping("/products")
   public ResponseEntity<ProductDto> addProduct(
-      @RequestBody AddProductDto addProductDto, JwtAuthenticationToken principal) {
+      @RequestBody AddProductDto addProductDto, JwtAuthenticationToken principal)throws ChangeSetPersister.NotFoundException {
     ProductDto productDto = productService.addNewProduct(addProductDto, principal.getName());
     return ResponseEntity.created(URI.create("/products/" + productDto.getId())).body(productDto);
   }
 
   @GetMapping("/products/{id}")
-  public ResponseEntity<ProductDto> getProduct(@PathVariable long id) {
+  public ResponseEntity<ProductDto> getProduct(@PathVariable long id)throws ChangeSetPersister.NotFoundException {
     ProductDto productDto = productService.getProductById(id);
     return ResponseEntity.ok().body(productDto);
   }
 
   @PutMapping("/products/{id}")
   public ResponseEntity<ProductDto> updateProduct(
-      @PathVariable long id, @RequestBody UpdateProductDto updateProductDto) {
+      @PathVariable long id, @RequestBody UpdateProductDto updateProductDto)throws ChangeSetPersister.NotFoundException {
     ProductDto productDto = productService.updateProduct(id, updateProductDto);
     return ResponseEntity.ok().body(productDto);
   }
 
   @PutMapping("/products/{id}/enable")
-  public ResponseEntity<ProductDto> addProductToOrganisationProducts(@PathVariable long id) {
+  public ResponseEntity<ProductDto> addProductToOrganisationProducts(@PathVariable long id)throws ChangeSetPersister.NotFoundException {
     ProductDto productDto = productService.addProductToOrganisationProducts(id);
     return ResponseEntity.ok().body(productDto);
   }
@@ -75,7 +76,7 @@ public class ProductController {
   public ResponseEntity<ReviewDto> addNewReviewForPurchasedProduct(
       @PathVariable long id,
       @RequestBody AddReviewDto addReviewDto,
-      JwtAuthenticationToken principal) {
+      JwtAuthenticationToken principal)throws ChangeSetPersister.NotFoundException {
     return ResponseEntity.ok()
         .body(
             productService.addNewReviewForPurchasedProduct(id, addReviewDto, principal.getName()));
@@ -86,13 +87,13 @@ public class ProductController {
       @PathVariable long id,
       @PathVariable long reviewId,
       @RequestBody AddReviewDto addReviewDto,
-      JwtAuthenticationToken principal) {
+      JwtAuthenticationToken principal)throws ChangeSetPersister.NotFoundException {
     return ResponseEntity.ok()
         .body(productService.updateExistingReview(id, reviewId, addReviewDto, principal.getName()));
   }
 
   @DeleteMapping("/products/{id}/reviews/{reviewId}")
-  public ResponseEntity<Void> deleteReview(@PathVariable long id, @PathVariable long reviewId, JwtAuthenticationToken principal) {
+  public ResponseEntity<Void> deleteReview(@PathVariable long id, @PathVariable long reviewId, JwtAuthenticationToken principal)throws ChangeSetPersister.NotFoundException {
     productService.deleteReviewById(id, reviewId, principal.getName());
     return ResponseEntity.noContent().build();
   }

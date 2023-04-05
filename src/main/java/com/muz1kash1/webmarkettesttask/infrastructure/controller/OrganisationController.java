@@ -5,6 +5,7 @@ import com.muz1kash1.webmarkettesttask.model.dto.OrganisationDto;
 import com.muz1kash1.webmarkettesttask.model.dto.SignupOrganisationDto;
 import java.net.URI;
 import lombok.AllArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Controller;
@@ -30,11 +31,11 @@ public class OrganisationController {
 
   @PostMapping("/organisations")
   public ResponseEntity<OrganisationDto> addOrganisationApplication(
-      @RequestBody SignupOrganisationDto signOrganisationDto, JwtAuthenticationToken principal) {
+      @RequestBody SignupOrganisationDto signOrganisationDto, JwtAuthenticationToken principal)
+      throws ChangeSetPersister.NotFoundException {
     OrganisationDto organisationDto =
         organisationService.addOrganisationApplication(signOrganisationDto, principal.getName());
-    return ResponseEntity.created(
-            URI.create("/organisations/" + String.valueOf(organisationDto.getId())))
+    return ResponseEntity.created(URI.create("/organisations/" + organisationDto.getId()))
         .body(organisationDto);
   }
 }

@@ -23,13 +23,10 @@ public class ProductDiscount {
   @Column(name = "discount_id")
   private long discountId;
 
-  public ProductDiscount(){
+  public ProductDiscount() {}
 
-  }
-  public ProductDiscount(long productId, long discountId){
+  public ProductDiscount(long productId, long discountId) {
     this.productId = productId;
     this.discountId = discountId;
   }
-
-
 }

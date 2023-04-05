@@ -16,8 +16,11 @@ import com.muz1kash1.webmarkettesttask.model.dto.UpdateProductDto;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zalando.problem.Problem;
+import org.zalando.problem.Status;
 
 @AllArgsConstructor
 @Service
@@ -44,7 +47,7 @@ public class ProductService {
     return productDtos;
   }
 
-  public ProductDto getProductById(final long id) {
+  public ProductDto getProductById(final long id)throws ChangeSetPersister.NotFoundException {
     Product product = productRepository.getProductById(id);
     return new ProductDto(
         product.getId(),
@@ -57,7 +60,7 @@ public class ProductService {
         product.getChars());
   }
 
-  public ProductDto addNewProduct(final AddProductDto addProductDto, String username) {
+  public ProductDto addNewProduct(final AddProductDto addProductDto, String username)throws ChangeSetPersister.NotFoundException {
     Product product =
         productRepository.addProduct(
             new Product(
@@ -82,7 +85,7 @@ public class ProductService {
         product.getChars());
   }
 
-  public ProductDto updateProduct(final long id, final UpdateProductDto updateProductDto) {
+  public ProductDto updateProduct(final long id, final UpdateProductDto updateProductDto)throws ChangeSetPersister.NotFoundException {
     Product product = productRepository.getProductById(id);
     product.setName(updateProductDto.getName());
     product.setDescription(updateProductDto.getDescription());
@@ -120,7 +123,7 @@ public class ProductService {
   }
 
   public ReviewDto addNewReviewForPurchasedProduct(
-      final long id, final AddReviewDto addReviewDto, String username) {
+      final long id, final AddReviewDto addReviewDto, String username)throws ChangeSetPersister.NotFoundException {
     com.muz1kash1.webmarkettesttask.model.domain.Review review;
 
     List<Product> products = productRepository.getPurchasedProducts(username);
@@ -135,7 +138,7 @@ public class ProductService {
                   addReviewDto.getReviewText(),
                   addReviewDto.getRating()));
     } else {
-      throw new RuntimeException("Нельзя оставлять отзыв не купив товар");
+      throw Problem.valueOf(Status.CONFLICT);
     }
     return new ReviewDto(
         review.getId(),
@@ -146,7 +149,7 @@ public class ProductService {
   }
 
   public ReviewDto updateExistingReview(
-      final long id, final long reviewId, final AddReviewDto addReviewDto, String username) {
+      final long id, final long reviewId, final AddReviewDto addReviewDto, String username)throws ChangeSetPersister.NotFoundException {
     User user = userRepository.getUserByUsername(username);
     Review review =
         new Review(
@@ -161,20 +164,20 @@ public class ProductService {
           reviewToUpdate.getReviewText(),
           reviewToUpdate.getRating());
     } else {
-      throw new RuntimeException("Только тот кто оставил ревью может его менять");
+      throw Problem.valueOf(Status.CONFLICT);
     }
   }
 
-  public void deleteReviewById(final long id, final long reviewId, String username) {
+  public void deleteReviewById(final long id, final long reviewId, String username)throws ChangeSetPersister.NotFoundException {
     User user = userRepository.getUserByUsername(username);
     Review review = productRepository.getReviewById(reviewId);
     if (review.getUserId() == user.getId()){
       productRepository.deleteReviewById(id, reviewId);
     }
-    else throw new RuntimeException("Удалять ревью может только тот кто его оставил");
+    else throw Problem.valueOf(Status.CONFLICT);
   }
 
-  public ProductDto addProductToOrganisationProducts(long id) {
+  public ProductDto addProductToOrganisationProducts(long id)throws ChangeSetPersister.NotFoundException {
     Product product = productRepository.enableOrganisationProduct(id);
     return new ProductDto(
         product.getId(),

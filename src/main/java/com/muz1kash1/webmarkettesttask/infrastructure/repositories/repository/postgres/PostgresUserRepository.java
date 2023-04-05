@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,12 +30,10 @@ public class PostgresUserRepository implements IUserRepo {
   private final UserNotionsRepository userNotionsRepository;
 
   @Override
-  public User getUserById(long id) {
+  public User getUserById(long id)throws ChangeSetPersister.NotFoundException {
 
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
-        userRepository
-            .findUserById(id)
-            .orElseThrow(() -> new RuntimeException("Пользователя c id" + id + " нет в базе"));
+        userRepository.findUserById(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
     return new User(
         user.getId(),
         user.getUsername(),
@@ -51,11 +50,11 @@ public class PostgresUserRepository implements IUserRepo {
   }
 
   @Override
-  public User enableUser(long id) {
+  public User enableUser(long id)throws ChangeSetPersister.NotFoundException {
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
         userRepository
             .findUserById(id)
-            .orElseThrow(() -> new RuntimeException("Пользователя c id" + id + " нет в базе"));
+            .orElseThrow(ChangeSetPersister.NotFoundException::new);
     user.setEnabled(true);
     userRepository.save(user);
     return new User(
@@ -69,11 +68,9 @@ public class PostgresUserRepository implements IUserRepo {
   }
 
   @Override
-  public User changeUserBalance(long id, BigDecimal value) {
+  public User changeUserBalance(long id, BigDecimal value)throws ChangeSetPersister.NotFoundException {
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
-        userRepository
-            .findUserById(id)
-            .orElseThrow(() -> new RuntimeException("Пользователя c id" + id + " нет в базе"));
+        userRepository.findUserById(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
     user.setBalance(user.getBalance().add(value));
     userRepository.save(user);
     return new User(
@@ -99,7 +96,7 @@ public class PostgresUserRepository implements IUserRepo {
   }
 
   @Override
-  public User addUser(SignUpDto signUpDto) {
+  public User addUser(SignUpDto signUpDto)throws ChangeSetPersister.NotFoundException {
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
         new com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User(
             signUpDto.getUsername(),
@@ -112,8 +109,7 @@ public class PostgresUserRepository implements IUserRepo {
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User userToReturn =
         userRepository
             .findUserByUsername(user.getUsername())
-            .orElseThrow(
-                () -> new RuntimeException("Пользователя " + user.getUsername() + " нет в базе"));
+            .orElseThrow(ChangeSetPersister.NotFoundException::new);
     return new User(
         userToReturn.getId(),
         userToReturn.getUsername(),
@@ -125,7 +121,7 @@ public class PostgresUserRepository implements IUserRepo {
   }
 
   @Override
-  public User addAdmin(SignUpDto signUpDto) {
+  public User addAdmin(SignUpDto signUpDto)throws ChangeSetPersister.NotFoundException {
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
         new com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User(
             signUpDto.getUsername(),
@@ -139,7 +135,7 @@ public class PostgresUserRepository implements IUserRepo {
         userRepository
             .findUserByUsername(user.getUsername())
             .orElseThrow(
-                () -> new RuntimeException("Пользователя " + user.getUsername() + " нет в базе"));
+                ChangeSetPersister.NotFoundException::new);
     return new User(
         userToReturn.getId(),
         userToReturn.getUsername(),
@@ -151,11 +147,11 @@ public class PostgresUserRepository implements IUserRepo {
   }
 
   @Override
-  public User getUserByUsername(String username) {
+  public User getUserByUsername(String username)throws ChangeSetPersister.NotFoundException {
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
         userRepository
             .findUserByUsername(username)
-            .orElseThrow(() -> new RuntimeException("Пользователя " + username + " нет в базе"));
+            .orElseThrow(ChangeSetPersister.NotFoundException::new);
     return new User(
         user.getId(),
         user.getUsername(),
@@ -191,11 +187,11 @@ public class PostgresUserRepository implements IUserRepo {
   }
 
   @Override
-  public User loadUserByUsername(final String username) {
+  public User loadUserByUsername(final String username)throws ChangeSetPersister.NotFoundException {
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
         userRepository
             .findUserByUsername(username)
-            .orElseThrow(() -> new RuntimeException("Пользователя " + username + " нет в базе"));
+            .orElseThrow(ChangeSetPersister.NotFoundException::new);
     return new User(
         user.getId(),
         user.getUsername(),
@@ -208,11 +204,11 @@ public class PostgresUserRepository implements IUserRepo {
 
   @Override
   public List<com.muz1kash1.webmarkettesttask.model.domain.Notion> getNotionsOfAuthorizedUser(
-      final String name) {
+      final String name)throws ChangeSetPersister.NotFoundException {
     com.muz1kash1.webmarkettesttask.infrastructure.repositories.entity.postgres.User user =
         userRepository
             .findUserByUsername(name)
-            .orElseThrow(() -> new RuntimeException("Пользователя " + name + " нет в базе"));
+            .orElseThrow(ChangeSetPersister.NotFoundException::new);
     List<UserNotions> userNotions = userNotionsRepository.findAllByUserId(user.getId());
     List<Notion> notions = new ArrayList<>();
     for (UserNotions userNotion : userNotions) {
