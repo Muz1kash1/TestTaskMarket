@@ -10,8 +10,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zalando.problem.Problem;
+import org.zalando.problem.Status;
 
 @Service
 @AllArgsConstructor
@@ -30,30 +33,30 @@ public class UserService {
         user.getRoles());
   }
 
-  public UserDto signUp(SignUpDto signUpDto) {
+  public UserDto signUp(SignUpDto signUpDto)throws ChangeSetPersister.NotFoundException {
     User user = userRepository.addUser(signUpDto);
     return getUserDtoFromDomain(user);
   }
 
-  public UserDto adminSignUp(SignUpDto signUpDto) {
+  public UserDto adminSignUp(SignUpDto signUpDto)throws ChangeSetPersister.NotFoundException {
     User user = userRepository.addAdmin(signUpDto);
     return getUserDtoFromDomain(user);
   }
 
-  public UserDto findByUsername(String username) {
+  public UserDto findByUsername(String username)throws ChangeSetPersister.NotFoundException {
     User user = userRepository.getUserByUsername(username);
     if (username.equals(user.getUsername())) {
       return getUserDtoFromDomain(user);
     }
-    throw new RuntimeException("Invalid username");
+    throw Problem.valueOf(Status.I_AM_A_TEAPOT); // Пасхалочка
   }
 
-  public UserDto changeUserBalance(final long userid, final BigDecimal valueOf) {
+  public UserDto changeUserBalance(final long userid, final BigDecimal valueOf)throws ChangeSetPersister.NotFoundException {
     User user = userRepository.changeUserBalance(userid, valueOf);
     return getUserDtoFromDomain(user);
   }
 
-  public UserDto getUserById(final long userid) {
+  public UserDto getUserById(final long userid)throws ChangeSetPersister.NotFoundException {
     User user = userRepository.getUserById(userid);
     return getUserDtoFromDomain(user);
   }
@@ -62,7 +65,7 @@ public class UserService {
     userRepository.deleteUserById(userService);
   }
 
-  public UserDto freezeUserById(final long userid) {
+  public UserDto freezeUserById(final long userid)throws ChangeSetPersister.NotFoundException {
     User user = userRepository.getUserById(userid);
     user.setEnabled(false);
     return getUserDtoFromDomain(user);
@@ -88,7 +91,7 @@ public class UserService {
     return notionDtos;
   }
 
-  public List<NotionDto> getAuthorizedUserNotions(final String name) {
+  public List<NotionDto> getAuthorizedUserNotions(final String name)throws ChangeSetPersister.NotFoundException {
     List<Notion> userNotions = userRepository.getNotionsOfAuthorizedUser(name);
     List<NotionDto> notionDtos = new ArrayList<>();
     for (Notion userNotion : userNotions) {
@@ -102,7 +105,7 @@ public class UserService {
     return notionDtos;
   }
 
-  public UserDto getUserByUsername(final String name) {
+  public UserDto getUserByUsername(final String name)throws ChangeSetPersister.NotFoundException {
     User user = userRepository.loadUserByUsername(name);
     return getUserDtoFromDomain(user);
   }

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -34,7 +35,7 @@ public class AuthenticationController {
   }
 
   @PostMapping(value = "/signup")
-  public ResponseEntity<UserDto> userSignup(@RequestBody @Valid SignUpDto signUpDto) {
+  public ResponseEntity<UserDto> userSignup(@RequestBody @Valid SignUpDto signUpDto)throws ChangeSetPersister.NotFoundException {
     UserDto userDto = userService.signUp(signUpDto);
     return ResponseEntity.created(
             URI.create(
@@ -47,7 +48,7 @@ public class AuthenticationController {
   }
 
   @PostMapping("admin/signup")
-  public ResponseEntity<UserDto> adminSignup(@RequestBody @Valid SignUpDto signUpDto) {
+  public ResponseEntity<UserDto> adminSignup(@RequestBody @Valid SignUpDto signUpDto)throws ChangeSetPersister.NotFoundException {
     UserDto userDto = userService.adminSignUp(signUpDto);
     return ResponseEntity.created(
             URI.create(

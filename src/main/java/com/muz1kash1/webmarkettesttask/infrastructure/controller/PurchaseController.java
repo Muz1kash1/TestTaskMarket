@@ -6,6 +6,7 @@ import com.muz1kash1.webmarkettesttask.model.dto.PurchaseDto;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +23,7 @@ public class PurchaseController {
 
   @PostMapping("/purchases")
   public ResponseEntity<PurchaseDto> purchaseProduct(
-      @RequestBody @Valid MakePurchaseDto makePurchaseDto, JwtAuthenticationToken principle) {
+      @RequestBody @Valid MakePurchaseDto makePurchaseDto, JwtAuthenticationToken principle)throws ChangeSetPersister.NotFoundException {
     PurchaseDto purchaseDto = purchaseService.makePurchase(makePurchaseDto, principle.getName());
     return ResponseEntity.ok().body(purchaseDto);
   }
@@ -44,7 +45,7 @@ public class PurchaseController {
 
   @GetMapping("/purchases/history")
   public ResponseEntity<List<PurchaseDto>> getPurchasesOfAuthorizedUser(
-      JwtAuthenticationToken principal) {
+      JwtAuthenticationToken principal)throws ChangeSetPersister.NotFoundException {
     return ResponseEntity.ok()
         .body(purchaseService.getPurchasesOfUserByUsername(principal.getName()));
   }

@@ -7,6 +7,7 @@ import com.muz1kash1.webmarkettesttask.infrastructure.repositories.repository.po
 import com.muz1kash1.webmarkettesttask.model.dto.SignupOrganisationDto;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Repository;
 
 @AllArgsConstructor
@@ -50,11 +51,11 @@ public class PostgresOrganisationRepository implements IOrganisationRepo {
 
   @Override
   public com.muz1kash1.webmarkettesttask.model.domain.Organisation addOrganisationApplication(
-      final SignupOrganisationDto signOrganisationDto, String username) {
+      final SignupOrganisationDto signOrganisationDto, String username)throws ChangeSetPersister.NotFoundException {
     User user =
         userRepository
             .findUserByUsername(username)
-            .orElseThrow(() -> new RuntimeException("Пользователь " + username + " не найден"));
+            .orElseThrow(ChangeSetPersister.NotFoundException::new);
     Organisation organisation =
         new Organisation(
             signOrganisationDto.getOrganisationName(),
@@ -66,7 +67,7 @@ public class PostgresOrganisationRepository implements IOrganisationRepo {
     Organisation organisationToReturn =
         organisationRepository
             .findTopByOrderByIdDesc()
-            .orElseThrow(() -> new RuntimeException("Нет организаций в базе"));
+            .orElseThrow(ChangeSetPersister.NotFoundException::new);
     return new com.muz1kash1.webmarkettesttask.model.domain.Organisation(
         organisationToReturn.getId(),
         organisationToReturn.getOrganisationName(),
